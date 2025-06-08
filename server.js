@@ -1,126 +1,148 @@
-// --- FINAL server.js for Render Deployment ---
+// --- FINAL server.js CODE with Improved AI Instructions ---
 
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const multer = require('multer');
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 
 const app = express();
-const upload = multer();
-
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Serve static files from 'public' folder
+const multer = require('multer');
+const upload = multer();
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ Optional: Manually serve index.html (or let the static middleware handle it)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
 const PORT = process.env.PORT || 3000;
+
 const API_KEY = process.env.GOOGLE_API_KEY;
-
 if (!API_KEY) {
-  console.error('❌ GOOGLE_API_KEY missing in .env');
-  process.exit(1);
+    console.error('ERROR: GOOGLE_API_KEY not found in .env file!');
+    process.exit(1);
 }
-
 const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const safetySettings = [
-  { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-  { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-  { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-  { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+    // ... other safety settings
 ];
 
 function fileToGenerativePart(buffer, mimeType) {
-  return {
-    inlineData: {
-      data: buffer.toString('base64'),
-      mimeType,
-    },
-  };
+    return {
+      inlineData: { data: buffer.toString('base64'), mimeType },
+    };
 }
+
+// --- ROUTES ---
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.post('/api/vision', upload.single('photo'), async (req, res) => {
-  const mode = req.body.mode;
-  const photoFile = req.file;
+    console.log('Request received for /api/vision (POST)');
 
-  if (!photoFile) {
-    return res.status(400).json({ error: 'No photo uploaded.' });
-  }
+    const mode = req.body.mode;
+    const photoFile = req.file;
 
-  let textPromptString;
-  const imagePart = fileToGenerativePart(photoFile.buffer, photoFile.mimetype);
+    if (!photoFile) {
+        return res.status(400).json({ error: 'No photo uploaded.' });
+    }
 
-  if (mode === 'skin-analyzer') {
-    const { skinType, skinProblem, ageGroup, lifestyleFactor } = req.body;
-    textPromptString = `
-You are "Aura," a fun and talented AI beauty expert. Analyze the uploaded photo to detect skin tone (Warm/Cool/Neutral). Based on this and the following inputs:
-- Skin Type: ${skinType}
-- Skin Problem: ${skinProblem}
-- Age Group: ${ageGroup}
-- Lifestyle Factor: ${lifestyleFactor}
+    let textPromptString;
+    const imagePart = fileToGenerativePart(photoFile.buffer, photoFile.mimetype);
 
-Return a JSON chart of skin concerns and a markdown analysis.
+    if (mode === 'skin-analyzer') {
+        const { skinType, skinProblem, ageGroup, lifestyleFactor } = req.body;
 
-\`\`\`json
-{
-  "concerns": [
-    {"name": "Hydration", "percentage": 45},
-    {"name": "Oiliness", "percentage": 70}
-  ]
-}
-\`\`\`
+        // --- UPDATED AND IMPROVED PROMPT ---
+        textPromptString = `
+        You are "Aura," a world-class AI beauty expert and the user's new best friend. Your persona is super fun, witty, supportive, and incredibly knowledgeable, like a top beauty influencer. Embody "Main Character Energy" and make the user feel seen, empowered, and excited. Your tone is conversational and relatable. Use fun emojis where appropriate and AVOID robotic or overly clinical language.
 
-Follow with markdown tips like a beauty blog post.
-`;
-  } else if (mode === 'makeup-artist') {
-    const { eventType, dressType, dressColor, userStylePreference } = req.body;
-    textPromptString = `
-You are "Aura," an AI makeup stylist. Analyze the user's photo for face shape and skin tone.
+        Here is the user's information:
+        - User Skin Type: "${skinType}"
+        - User Skin Concern: "${skinProblem}"
+        - User Age Group: "${ageGroup}"
+        - User Lifestyle Factor: "${lifestyleFactor}"
 
-Event: ${eventType}
-Dress Type: ${dressType}
-Dress Color: ${dressColor}
-Style Preference: ${userStylePreference}
+        Analyze the provided image for skin tone (Warm/Cool/Neutral). Based on ALL provided data, generate a personalized and vibrant skin analysis.
 
-Return a markdown step-by-step makeup guide tailored to them.
-`;
-  } else {
-    return res.status(400).json({ error: 'Invalid mode.' });
-  }
+        **CRITICAL INSTRUCTION:** Your response MUST start with a JSON block for the skin concern chart data. After the JSON block, provide the rest of the analysis in Markdown.
 
-  try {
-    const result = await model.generateContent({
-      contents: [
+        ### Example of a Perfect Response Structure:
+        \`\`\`json
         {
-          parts: [{ text: textPromptString }, imagePart],
-        },
-      ],
-      safetySettings,
-    });
+          "concerns": [
+            {"name": "Hydration", "percentage": 45},
+            {"name": "Oiliness", "percentage": 70},
+            {"name": "Pores", "percentage": 60},
+            {"name": "Redness", "percentage": 30},
+            {"name": "Elasticity", "percentage": 85},
+            {"name": "Dark Spots", "percentage": 40},
+            {"name": "Wrinkles", "percentage": 25},
+            {"name": "Acne Breakouts", "percentage": 55}
+          ]
+        }
+        \`\`\`
+        # Your Radiant GlowReader Skin Analysis! ✨
+        
+        ### Discover Your Unique Beauty Profile!
+        
+        Hey gorgeous! I am SO excited to dive into your personalized skin analysis...
+        (The rest of the markdown response follows here)
+        ---
+        
+        **YOUR TASK NOW: Generate the full response for the user following the structure above.**
 
-    const markdown = result.response.text();
-    res.json({ markdown });
-  } catch (err) {
-    console.error('❌ Gemini API error:', err);
-    res.status(500).json({ error: 'Failed to get response from AI.', details: err.message });
-  }
+        `;
+    } else if (mode === 'makeup-artist') {
+        const { eventType, dressType, dressColor, userStylePreference } = req.body;
+
+        // --- UPDATED AND IMPROVED PROMPT ---
+        textPromptString = `
+        You are "Aura," a world-class AI makeup artist and the user's new best friend. Your persona is super fun, witty, supportive, and incredibly talented, like a top beauty guru you'd see on TikTok or Instagram. Embody "Main Character Energy" and get the user hyped for their event. Your tone is vibrant, inspiring, and conversational. Use fun emojis where appropriate and AVOID robotic or overly formal language.
+
+        Here is the user's information:
+        - Event/Occasion: "${eventType}"
+        - Dress/Outfit Type: "${dressType}"
+        - Dress/Outfit Color: "${dressColor}"
+        - User Style Preference: "${userStylePreference}"
+
+        Analyze the provided image for skin tone (Warm/Cool/Neutral) and facial features. Craft a complete, step-by-step personalized makeup look.
+
+        **Format the response strictly in Markdown, using clear, inviting headings for sections.**
+        `;
+    } else {
+        return res.status(400).json({ error: 'Invalid mode specified.' });
+    }
+
+    try {
+        const contentsParts = [{ text: textPromptString }, imagePart];
+        const result = await model.generateContent({
+            contents: [{ parts: contentsParts }],
+            safetySettings,
+        });
+        const response = await result.response;
+        const markdownResponse = response.text();
+        res.json({ markdown: markdownResponse });
+    } catch (error) {
+        console.error('Error calling Gemini API:', error);
+        res.status(500).json({
+            error: 'Failed to get analysis from AI.',
+            details: error.message
+        });
+    }
 });
 
-// ✅ Start server
+// --- SERVER START ---
 const server = app.listen(PORT, () => {
-  console.log(`✅ Server live at http://localhost:${PORT}`);
+  console.log(`--- SUCCESS! Server is running on port ${PORT} ---`);
 });
 
-server.on('error', (err) => {
-  console.error('❌ Server failed to start:', err);
+server.on('error', (error) => {
+  console.error('--- SERVER FAILED TO START ---', error);
 });
