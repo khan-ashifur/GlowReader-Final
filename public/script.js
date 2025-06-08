@@ -1,40 +1,66 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const modeSelect = document.getElementById('mode-select');
+  const skinFields = document.getElementById('skin-analyzer-fields');
+  const makeupFields = document.getElementById('makeup-artist-fields');
   const form = document.getElementById('analysis-form');
   const loader = document.getElementById('loader');
   const resultContainer = document.getElementById('result-container');
   const photoUpload = document.getElementById('photo-upload');
-  const skinTone = document.getElementById('skin-tone');
-  const lipstick = document.getElementById('lipstick');
-  const proTip = document.getElementById('pro-tip');
-  const resultImage = document.getElementById('result-image');
+
+  // Switch fields based on mode
+  modeSelect.addEventListener('change', () => {
+    skinFields.style.display = modeSelect.value === 'skin-analyzer' ? 'block' : 'none';
+    makeupFields.style.display = modeSelect.value === 'makeup-artist' ? 'block' : 'none';
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    resultContainer.innerHTML = '';
+    loader.style.display = 'block';
 
-    // Show loader
-    loader.classList.remove('hidden');
-    resultContainer.classList.add('hidden');
+    const formData = new FormData(form);
 
-    // Simulate API call
-    setTimeout(() => {
-      loader.classList.add('hidden');
-      resultContainer.classList.remove('hidden');
+    try {
+      const response = await fetch('/api/vision', {
+        method: 'POST',
+        body: formData,
+      });
 
-      const file = photoUpload.files[0];
-      const reader = new FileReader();
-
-      reader.onload = function () {
-        resultImage.src = reader.result;
-      };
-
-      if (file) {
-        reader.readAsDataURL(file);
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Something went wrong');
       }
 
-      // Fake data
-      skinTone.textContent = "Warm Honey";
-      lipstick.textContent = "Peach Coral";
-      proTip.textContent = "Try bronzy highlighter for a glowing finish!";
-    }, 2500);
+      const result = await response.json();
+
+      const jsonRegex = /```json\s*([\s\S]*?)\s*```/;
+      const match = result.markdown.match(jsonRegex);
+      let markdownForDisplay = result.markdown;
+
+      // Optional: parse JSON block if exists
+      if (match && match[1]) {
+        try {
+          const jsonData = JSON.parse(match[1]);
+          if (jsonData.concerns) {
+            console.log('Detected concerns:', jsonData.concerns);
+          }
+          markdownForDisplay = result.markdown.replace(jsonRegex, '').trim();
+        } catch (e) {
+          console.warn('Could not parse JSON block.');
+        }
+      }
+
+      // Render Markdown
+      const markdownDiv = document.createElement('div');
+      markdownDiv.innerHTML = marked.parse(markdownForDisplay);
+      resultContainer.appendChild(markdownDiv);
+      resultContainer.style.display = 'block';
+
+    } catch (err) {
+      resultContainer.innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
+      resultContainer.style.display = 'block';
+    } finally {
+      loader.style.display = 'none';
+    }
   });
 });
