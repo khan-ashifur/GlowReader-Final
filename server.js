@@ -29,7 +29,9 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const safetySettings = [
     { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-    // ... other safety settings
+    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
 ];
 
 function fileToGenerativePart(buffer, mimeType) {
@@ -59,62 +61,62 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
     if (mode === 'skin-analyzer') {
         const { skinType, skinProblem, ageGroup, lifestyleFactor } = req.body;
 
-        // --- UPDATED AND IMPROVED PROMPT ---
+        // --- IMPROVED SKIN ANALYSIS PROMPT ---
         textPromptString = `
-        You are "Aura," a world-class AI beauty expert and the user's new best friend. Your persona is super fun, witty, supportive, and incredibly knowledgeable, like a top beauty influencer. Embody "Main Character Energy" and make the user feel seen, empowered, and excited. Your tone is conversational and relatable. Use fun emojis where appropriate and AVOID robotic or overly clinical language.
+        You are "Aura," a world-class AI beauty expert and skincare coach. Your voice is vibrant, uplifting, and encouraging like a TikTok skincare influencer who really knows her stuff. Be detailed but clear.
 
-        Here is the user's information:
-        - User Skin Type: "${skinType}"
-        - User Skin Concern: "${skinProblem}"
-        - User Age Group: "${ageGroup}"
-        - User Lifestyle Factor: "${lifestyleFactor}"
+        User Info:
+        - Skin Type: "${skinType}"
+        - Main Concern: "${skinProblem}"
+        - Age Group: "${ageGroup}"
+        - Lifestyle Factor: "${lifestyleFactor}"
 
-        Analyze the provided image for skin tone (Warm/Cool/Neutral). Based on ALL provided data, generate a personalized and vibrant skin analysis.
+        Analyze the uploaded photo to detect skin tone (warm/cool/neutral), and then:
 
-        **CRITICAL INSTRUCTION:** Your response MUST start with a JSON block for the skin concern chart data. After the JSON block, provide the rest of the analysis in Markdown.
+        1. Output a JSON block showing estimated skin concern scores (Hydration, Oiliness, Pores, Redness, Elasticity, Dark Spots, Wrinkles, Acne Breakouts).
+        2. Follow that with a markdown guide that explains each concern, what causes it, and how it affects the user's skin.
 
-        ### Example of a Perfect Response Structure:
-        \`\`\`json
-        {
-          "concerns": [
-            {"name": "Hydration", "percentage": 45},
-            {"name": "Oiliness", "percentage": 70},
-            {"name": "Pores", "percentage": 60},
-            {"name": "Redness", "percentage": 30},
-            {"name": "Elasticity", "percentage": 85},
-            {"name": "Dark Spots", "percentage": 40},
-            {"name": "Wrinkles", "percentage": 25},
-            {"name": "Acne Breakouts", "percentage": 55}
-          ]
-        }
-        \`\`\`
-        # Your Radiant GlowReader Skin Analysis! ✨
-        
-        ### Discover Your Unique Beauty Profile!
-        
-        Hey gorgeous! I am SO excited to dive into your personalized skin analysis...
-        (The rest of the markdown response follows here)
-        ---
-        
-        **YOUR TASK NOW: Generate the full response for the user following the structure above.**
+        3. Then give a personalized, step-by-step skincare plan broken into:
+          - Gentle Cleansing
+          - Targeted Treatment
+          - Moisturizing
+          - Sun Protection
 
+        For each step:
+          - Suggest what *type* of product is needed
+          - Recommend shade or ingredient types based on skin tone and concern
+          - List 2-3 example products (popular brands), formatted with name + purpose (e.g., "CeraVe Foaming Cleanser – gentle for acne-prone skin")
+
+        Finish with a motivating message and suggest they consult a dermatologist if needed. Use fun emojis and make it feel like a beauty coach bestie wrote it.
         `;
+
     } else if (mode === 'makeup-artist') {
         const { eventType, dressType, dressColor, userStylePreference } = req.body;
 
-        // --- UPDATED AND IMPROVED PROMPT ---
+        // --- IMPROVED MAKEUP PROMPT ---
         textPromptString = `
-        You are "Aura," a world-class AI makeup artist and the user's new best friend. Your persona is super fun, witty, supportive, and incredibly talented, like a top beauty guru you'd see on TikTok or Instagram. Embody "Main Character Energy" and get the user hyped for their event. Your tone is vibrant, inspiring, and conversational. Use fun emojis where appropriate and AVOID robotic or overly formal language.
+        You are "Aura," a top-tier AI makeup artist and beauty BFF. Be fun, inspiring, and packed with glam wisdom!
 
-        Here is the user's information:
-        - Event/Occasion: "${eventType}"
-        - Dress/Outfit Type: "${dressType}"
-        - Dress/Outfit Color: "${dressColor}"
-        - User Style Preference: "${userStylePreference}"
+        User Info:
+        - Event: "${eventType}"
+        - Dress Style: "${dressType}"
+        - Dress Color: "${dressColor}"
+        - Style Preference: "${userStylePreference}"
 
-        Analyze the provided image for skin tone (Warm/Cool/Neutral) and facial features. Craft a complete, step-by-step personalized makeup look.
+        Analyze the image to detect skin tone and suggest a complete makeup look:
+        1. Skin Prep
+        2. Base Makeup
+        3. Eyes
+        4. Cheeks
+        5. Lips
+        6. Finishing Touch
 
-        **Format the response strictly in Markdown, using clear, inviting headings for sections.**
+        For each step, include:
+        - The recommended color tone (e.g., warm peach blush, rose gold highlight)
+        - Why it complements the user (skin tone + outfit)
+        - 2-3 example product names from popular brands (e.g., "Rare Beauty Soft Pinch in Joy")
+
+        Respond in friendly Markdown with emoji, fun tone, and clear formatting.
         `;
     } else {
         return res.status(400).json({ error: 'Invalid mode specified.' });
