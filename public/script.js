@@ -1,305 +1,191 @@
-// script.js - FINAL Version: Robust Frontend Logic
+// --- FULL script.js CODE ---
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Mode Selection Buttons
-    const skinAnalyzerBtn = document.getElementById('skin-analyzer-btn');
-    const makeupArtistBtn = document.getElementById('makeup-artist-btn');
+    // --- DOM ELEMENT REFERENCES ---
+    const modeSelect = document.getElementById('mode-select');
+    const skinFields = document.getElementById('skin-analyzer-fields');
+    const makeupFields = document.getElementById('makeup-artist-fields');
+    const form = document.getElementById('analysis-form');
+    const loader = document.getElementById('loader');
+    const resultContainer = document.getElementById('result-container');
+    const photoUpload = document.getElementById('photo-upload');
+    const historyPanel = document.getElementById('history-panel');
+    const historyList = document.getElementById('history-list');
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+    let skinChartInstance = null; // To hold the chart instance
 
-    // Sections
-    const skinAnalyzerSection = document.getElementById('skin-analyzer-section');
-    const makeupArtistSection = document.getElementById('makeup-artist-section');
-    const resultsSection = document.getElementById('results-section');
-
-    // Skin Analyzer Form Elements
-    const userForm = document.getElementById('user-form');
-    const photoUploadSkin = document.getElementById('photo-upload-skin'); 
-    const skinTypeSelect = document.getElementById('skin-type'); 
-    const skinProblemInput = document.getElementById('skin-problem'); 
-    const ageGroupSelect = document.getElementById('age-group'); 
-    const lifestyleFactorInput = document.getElementById('lifestyle-factor'); 
-
-    // Makeup Artist Form Elements
-    const makeupForm = document.getElementById('makeup-form');
-    const photoUploadMakeup = document.getElementById('photo-upload-makeup'); 
-    const makeupEventInput = document.getElementById('makeup-event'); 
-    const makeupDressInput = document.getElementById('makeup-dress'); 
-    const makeupDressColorInput = document.getElementById('makeup-dress-color'); 
-    const userStylePreferenceInput = document.getElementById('user-style-preference'); 
+    // --- ONBOARDING LOGIC ---
+    const handleOnboarding = () => {
+        const hasVisited = localStorage.getItem('glowReaderVisited');
+        if (!hasVisited) {
+            const welcomeModal = document.getElementById('welcome-modal');
+            welcomeModal.classList.add('visible');
+            
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            closeModalBtn.addEventListener('click', () => {
+                welcomeModal.classList.remove('visible');
+                localStorage.setItem('glowReaderVisited', 'true');
+            });
+        }
+    };
     
-    // Common Results Elements
-    const resultsCard = document.getElementById('results-card');
-    const chartCanvas = document.getElementById('skin-concern-chart');
-    const chartContainer = document.querySelector('.chart-container');
-    const ctx = chartCanvas.getContext('2d');
+    // --- CHART FUNCTION ---
+    const renderSkinAnalysisChart = (concerns) => {
+        const chartContainer = document.getElementById('chart-container');
+        const chartCanvas = document.getElementById('skin-chart');
+        chartContainer.style.display = 'block';
 
-    // --- Mode Switching Logic ---
-    function showSection(sectionId) {
-        // Hide all main content sections and results
-        skinAnalyzerSection.classList.add('hidden');
-        makeupArtistSection.classList.add('hidden');
-        resultsSection.classList.add('hidden'); 
-
-        // Show the requested section
-        document.getElementById(sectionId).classList.remove('hidden');
-
-        // Update active button state
-        skinAnalyzerBtn.classList.remove('active');
-        makeupArtistBtn.classList.remove('active');
-        if (sectionId === 'skin-analyzer-section') {
-            skinAnalyzerBtn.classList.add('active');
-            chartContainer.style.display = 'none'; // Hide chart on mode switch
-        } else {
-            makeupArtistBtn.classList.add('active');
-            chartContainer.style.display = 'none'; // Hide chart on mode switch
-        }
-    }
-
-    // Event listeners for mode buttons
-    skinAnalyzerBtn.addEventListener('click', () => showSection('skin-analyzer-section'));
-    makeupArtistBtn.addEventListener('click', () => showSection('makeup-artist-section'));
-
-    // --- Radar Chart Drawing Function ---
-    function drawRadarChart(data) {
-        if (!data || data.length === 0) {
-            chartContainer.innerHTML = "<p>No chart data available.</p>";
-            return;
+        if (skinChartInstance) {
+            skinChartInstance.destroy();
         }
 
-        const parentWidth = chartContainer.offsetWidth;
-        const size = Math.min(parentWidth, 300); 
+        const labels = concerns.map(c => c.name);
+        const data = concerns.map(c => c.percentage);
+
+        skinChartInstance = new Chart(chartCanvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Concern Level',
+                    data: data,
+                    backgroundColor: 'rgba(131, 111, 255, 0.6)',
+                    borderColor: 'rgba(131, 111, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true, max: 100 }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    };
+
+    // --- HISTORY MANAGEMENT FUNCTIONS ---
+    const getHistory = () => JSON.parse(localStorage.getItem('glowReaderHistory')) || [];
+
+    const saveToHistory = (type, content) => {
+        const history = getHistory();
+        const newEntry = {
+            id: Date.now(),
+            type: type,
+            date: new Date().toLocaleString(),
+            content: content
+        };
+        history.unshift(newEntry);
+        localStorage.setItem('glowReaderHistory', JSON.stringify(history));
+        renderHistory(newEntry.id);
+    };
+
+    const renderHistory = (newestId = null) => {
+        const history = getHistory();
+        historyList.innerHTML = '';
+        historyPanel.style.display = history.length > 0 ? 'block' : 'none';
+
+        history.forEach(item => {
+            const li = document.createElement('li');
+            li.dataset.id = item.id;
+            li.innerHTML = `<span class="history-item-title">${item.type}</span><div class="history-item-date">${item.date}</div>`;
+            if (item.id === newestId) {
+                li.classList.add('new-item');
+                setTimeout(() => li.classList.remove('new-item'), 3000);
+            }
+            historyList.appendChild(li);
+        });
+    };
+    
+    const displayFromHistory = (id) => {
+        const item = getHistory().find(entry => entry.id == id);
+        if (item) {
+            handleApiResponse(item.content);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+    
+    const clearHistory = () => {
+        localStorage.removeItem('glowReaderHistory');
+        renderHistory();
+        resultContainer.style.display = 'none';
+        if (skinChartInstance) skinChartInstance.destroy();
+    };
+
+    // --- RESPONSE HANDLING ---
+    const handleApiResponse = (markdown) => {
+        resultContainer.innerHTML = ''; // Clear previous results completely
         
-        chartCanvas.width = size;
-        chartCanvas.height = size;
+        const jsonRegex = /```json\s*([\s\S]*?)\s*```/;
+        const match = markdown.match(jsonRegex);
+        let markdownForDisplay = markdown;
 
-        const labels = data.map(d => d.name);
-        const values = data.map(d => d.percentage);
-        const numPoints = labels.length;
-        const radius = size / 2 * 0.7; 
-        const centerX = size / 2;
-        const centerY = size / 2;
-
-        ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
-
-        ctx.strokeStyle = '#ccc';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < numPoints; i++) {
-            const angle = (i / numPoints) * 2 * Math.PI - Math.PI / 2;
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle));
-            ctx.stroke();
-        }
-
-        for (let i = 0; i <= 4; i++) { 
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius * (i / 4), 0, 2 * Math.PI);
-            ctx.stroke();
-        }
-
-        ctx.beginPath();
-        ctx.fillStyle = 'rgba(215, 90, 108, 0.4)'; 
-        ctx.strokeStyle = '#D75A6C'; 
-        ctx.lineWidth = 2;
-
-        for (let i = 0; i < numPoints; i++) {
-            const angle = (i / numPoints) * 2 * Math.PI - Math.PI / 2;
-            const pointRadius = (values[i] / 100) * radius; 
-            const x = centerX + pointRadius * Math.cos(angle);
-            const y = centerY + pointRadius * Math.sin(angle);
-
-            if (i === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-
-            ctx.beginPath();
-            ctx.arc(x, y, 4, 0, 2 * Math.PI);
-            ctx.fillStyle = '#D75A6C';
-            ctx.fill();
-            ctx.fillStyle = '#4A4A4A';
-            ctx.font = '10px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(labels[i] + ' ' + values[i] + '%', centerX + (radius + 20) * Math.cos(angle), centerY + (radius + 20) * Math.sin(angle));
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-    }
-
-    // Add resize event listener to redraw chart
-    window.addEventListener('resize', () => {
-        if (chartContainer.style.display !== 'none' && resultsSection.classList.contains('chart-visible')) { 
-            const storedData = resultsCard.dataset.skinConcernsData; 
-            if (storedData) {
-                try {
-                    drawRadarChart(JSON.parse(storedData).concerns);
-                } catch (jsonError) { 
-                    console.error("Error re-drawing chart on resize:", jsonError);
+        if (match && match[1]) {
+            try {
+                const jsonData = JSON.parse(match[1]);
+                if (jsonData.concerns) {
+                    const chartContainerHtml = `<div id="chart-container" style="display: none;"><h3>Your Skin Concerns at a Glance</h3><canvas id="skin-chart"></canvas></div>`;
+                    resultContainer.innerHTML = chartContainerHtml; // Add chart container first
+                    renderSkinAnalysisChart(jsonData.concerns);
                 }
+                markdownForDisplay = markdown.replace(jsonRegex, '').trim();
+            } catch (e) {
+                console.error("Failed to parse JSON from markdown:", e);
             }
         }
+        
+        const textResultDiv = document.createElement('div');
+        textResultDiv.innerHTML = marked.parse(markdownForDisplay);
+        resultContainer.appendChild(textResultDiv);
+        
+        resultContainer.style.display = 'block';
+    };
+
+    // --- EVENT LISTENERS ---
+    modeSelect.addEventListener('change', () => {
+        skinFields.style.display = modeSelect.value === 'skin-analyzer' ? 'block' : 'none';
+        makeupFields.style.display = modeSelect.value === 'makeup-artist' ? 'block' : 'none';
     });
+    
+    historyList.addEventListener('click', (e) => (e.target.closest('li')) && displayFromHistory(e.target.closest('li').dataset.id));
+    clearHistoryBtn.addEventListener('click', clearHistory);
 
-
-    // --- Skin Analyzer Form Submission ---
-    userForm.addEventListener('submit', async (event) => {
+    form.addEventListener('submit', async (event) => {
         event.preventDefault();
-
-        const photoFile = photoUploadSkin.files[0]; 
-        const skinType = skinTypeSelect.value; 
-        const skinProblem = skinProblemInput.value.trim(); 
-        const ageGroup = ageGroupSelect.value; 
-        const lifestyleFactor = lifestyleFactorInput.value.trim(); 
-
-        if (!photoFile) {
-            alert('Please upload a photo for Skin Analyzer!');
+        if (!photoUpload.files[0]) {
+            resultContainer.innerHTML = `<p style="color: #e63946;">Please upload a photo to continue.</p>`;
+            resultContainer.style.display = 'block';
             return;
         }
-        if (!skinProblem || !lifestyleFactor) { 
-            alert('Please fill in Skin Concern and Lifestyle Factor.');
-            return;
-        }
+        
+        form.style.display = 'none';
+        resultContainer.style.display = 'none';
+        loader.style.display = 'block';
 
-
-        // Show results section and loading message BEFORE fetch
-        skinAnalyzerSection.classList.add('hidden'); 
-        resultsSection.classList.remove('hidden'); 
-        resultsCard.innerHTML = `<p>Analyzing your skin profile... Please wait.</p>`; 
-        chartContainer.style.display = 'none'; 
-        resultsSection.classList.remove('chart-visible'); 
-
-
-        const formData = new FormData();
-        formData.append('photo', photoFile);
-        formData.append('skinType', skinType);
-        formData.append('skinProblem', skinProblem);
-        formData.append('ageGroup', ageGroup); 
-        formData.append('lifestyleFactor', lifestyleFactor); 
-        formData.append('mode', 'skin-analyzer'); 
-
+        const formData = new FormData(form);
         try {
-            const response = await fetch('http://localhost:3000/api/vision', {
-                method: 'POST',
-                body: formData, 
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text(); 
-                throw new Error(`Server responded with an error: ${response.statusText} - ${errorText}`);
-            }
-
-            const data = await response.json();
-            const markdownResponse = data.markdown;
-
-            const jsonRegex = /```json\n([\s\S]*?)\n```/;
-            const match = markdownResponse.match(jsonRegex);
-            let skinConcernsData = null;
-            let finalMarkdown = markdownResponse;
-
-            if (match && match[1]) {
-                try {
-                    skinConcernsData = JSON.parse(match[1]);
-                    resultsCard.dataset.skinConcernsData = JSON.stringify(skinConcernsData); 
-                    finalMarkdown = markdownResponse.replace(match[0], '').trim(); 
-                } catch (jsonError) {
-                    console.error("Error parsing JSON from AI response:", jsonError);
-                }
-            }
-
-            const rawHtml = marked.parse(finalMarkdown);
-            const cleanHtml = DOMPurify.sanitize(rawHtml);
-
-            resultsCard.innerHTML = cleanHtml;
-
-            if (skinConcernsData && skinConcernsData.concerns) {
-                chartContainer.style.display = 'block'; 
-                resultsSection.classList.add('chart-visible'); 
-                drawRadarChart(skinConcernsData.concerns);
-            } else {
-                chartContainer.style.display = 'none'; 
-                resultsSection.classList.remove('chart-visible');
-            }
-
+            const response = await fetch('/api/vision', { method: 'POST', body: formData });
+            if (!response.ok) throw new Error((await response.json()).error || 'An unknown server error occurred.');
+            
+            const result = await response.json();
+            handleApiResponse(result.markdown);
+            
+            let analysisType = modeSelect.value === 'skin-analyzer' 
+                ? 'Skin Analysis' 
+                : `Makeup Look for ${formData.get('eventType') || 'Event'}`;
+            saveToHistory(analysisType, result.markdown);
         } catch (error) {
-            console.error('Error fetching data from backend:', error);
-            resultsCard.innerHTML = `
-                <h3 style="color: red;">❌ Analysis Failed</h3>
-                <p>An error occurred while connecting to or receiving from the backend server.</p>
-                <p><small>Error: ${error.message}</small></p>
-            `;
-            chartContainer.style.display = 'none'; 
-            resultsSection.classList.remove('chart-visible');
+            resultContainer.innerHTML = `<p style="color: #e63946; font-weight: bold;">Oops! Something went wrong.</p><p style="color: #495057;">Error: ${error.message}</p>`;
+            resultContainer.style.display = 'block';
+        } finally {
+            loader.style.display = 'none';
+            form.style.display = 'block';
         }
     });
-
-    // --- Makeup Artist Form Submission ---
-    makeupForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const photoFile = photoUploadMakeup.files[0]; 
-        const eventType = makeupEventInput.value.trim(); 
-        const dressType = makeupDressInput.value.trim(); 
-        const dressColor = makeupDressColorInput.value.trim(); 
-        const userStylePreference = userStylePreferenceInput.value.trim(); 
-
-        if (!photoFile) {
-            alert('Please upload a photo for Makeup Artist!');
-            return;
-        }
-        if (!eventType || !dressType || !dressColor || !userStylePreference) { 
-            alert('Please fill in all event, dress type, dress color, and style preference fields for Makeup Artist!');
-            return;
-        }
-
-        // Show results section and loading message BEFORE fetch
-        makeupArtistSection.classList.add('hidden'); 
-        resultsSection.classList.remove('hidden'); 
-        resultsCard.innerHTML = `<p>Your personal stylist is crafting your look... Please wait.</p>`;
-        chartContainer.style.display = 'none'; 
-        resultsSection.classList.remove('chart-visible');
-
-
-        const formData = new FormData();
-        formData.append('photo', photoFile);
-        formData.append('eventType', eventType); 
-        formData.append('dressType', dressType); 
-        formData.append('dressColor', dressColor); 
-        formData.append('userStylePreference', userStylePreference); 
-        formData.append('mode', 'makeup-artist'); 
-
-        try {
-            const response = await fetch('http://localhost:3000/api/vision', { 
-                method: 'POST',
-                body: formData, 
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text(); 
-                throw new Error(`Server responded with an error: ${response.statusText} - ${errorText}`);
-            }
-
-            const data = await response.json();
-            const markdownResponse = data.markdown;
-
-            const rawHtml = marked.parse(markdownResponse);
-            const cleanHtml = DOMPurify.sanitize(rawHtml);
-
-            resultsCard.innerHTML = cleanHtml;
-
-        } catch (error) {
-            console.error('Error fetching makeup advice from backend:', error);
-            resultsCard.innerHTML = `
-                <h3 style="color: red;">❌ Makeup Advice Failed</h3>
-                <p>An error occurred while getting your custom makeup advice.</p>
-                <p><small>Error: ${error.message}</small></p>
-            `;
-            chartContainer.style.display = 'none'; 
-            resultsSection.classList.remove('chart-visible');
-        }
-    });
-
-    // Initialize to show skin analyzer section by default
-    showSection('skin-analyzer-section');
+    
+    // --- INITIALIZATION ---
+    renderHistory();
+    handleOnboarding();
 });
