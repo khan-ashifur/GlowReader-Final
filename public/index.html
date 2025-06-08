@@ -1,3 +1,4 @@
+<!-- ✅ GlowReader: Fixed Full index.html with Chart + Loader + Result Preview -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,19 +7,10 @@
   <title>GlowReader AI Beauty Assistant</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-
-  <!-- Welcome Modal -->
-  <div id="welcome-modal" class="modal-overlay">
-    <div class="modal-content">
-      <h2>Hey, I'm Aura! ✨</h2>
-      <p>Sooo stoked you're here! I'm your new AI beauty BFF, ready to help you find the perfect look.</p>
-      <p>Just upload a clear photo, tell me a little about what you're looking for, and I'll give you some personalized ideas!</p>
-      <button id="close-modal-btn">Let's Glow!</button>
-    </div>
-  </div>
-
   <div class="main-content">
     <div class="container">
       <header>
@@ -85,38 +77,26 @@
         <button type="submit" class="submit-btn">Ask Aura</button>
       </form>
 
-      <div id="loader">
-        <p>Analyzing... Please wait.</p>
+      <div id="loader" style="display: none; text-align: center; padding: 20px;">
+        <p>✨ Analyzing your glow... please wait 💖</p>
       </div>
 
-      <!-- ✅ Result Display Area (Fixes JS crash) -->
-      <div id="result-container" class="result-section">
+      <div id="result-container" class="result-section" style="display: none;">
         <div id="chart-container" style="display: none;">
           <h3>Your Skin Concerns at a Glance</h3>
           <canvas id="skin-chart"></canvas>
         </div>
-
         <div class="result-preview">
-          <img id="result-image" class="result-image" src="" alt="Uploaded face" />
+          <img id="result-image" src="" alt="User photo" style="width: 150px; border-radius: 10px; display: none; margin: 0 auto 20px;" />
           <p><strong>Skin Tone:</strong> <span id="skin-tone">–</span></p>
           <p><strong>Lipstick Match:</strong> <span id="lipstick">–</span></p>
           <p><strong>Pro Tip:</strong> <span id="pro-tip">–</span></p>
         </div>
+        <div id="markdown-output"></div>
       </div>
-    </div>
-
-    <!-- History Panel -->
-    <div id="history-panel" class="container" style="display: none;">
-      <div class="history-header">
-        <h2>Recent Analyses</h2>
-        <button id="clear-history-btn">Clear History</button>
-      </div>
-      <ul id="history-list"></ul>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
