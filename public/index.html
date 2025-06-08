@@ -81,7 +81,28 @@
                 </div>
 
                 <div id="makeup-artist-fields" class="mode-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="event-type">Event Type:</label>
+                        <input id="event-type" type="text" name="eventType" placeholder="e.g., Wedding, Date Night">
                     </div>
+                    <div class="form-group">
+                        <label for="dress-type">Outfit Type:</label>
+                        <input id="dress-type" type="text" name="dressType" placeholder="e.g., Silk Dress, Casual">
+                    </div>
+                    <div class="form-group">
+                         <label for="dress-color">Outfit Color:</label>
+                        <input id="dress-color" type="text" name="dressColor" placeholder="e.g., Red, Navy Blue">
+                    </div>
+                     <div class="form-group">
+                        <label for="style-pref">Style Preference:</label>
+                        <select id="style-pref" name="userStylePreference">
+                            <option value="Natural">Natural</option>
+                            <option value="Glamorous">Glamorous</option>
+                            <option value="Bold & Dramatic">Bold & Dramatic</option>
+                            <option value="Minimalist">Minimalist</option>
+                        </select>
+                    </div>
+                </div>
 
                 <button type="submit" class="submit-btn">Ask Aura</button>
             </form>
@@ -95,7 +116,13 @@
         </div>
 
         <div id="history-panel" class="container" style="display: none;">
-             </div>
+            <div class="history-header">
+                <h2>Recent Analyses</h2>
+                <button id="clear-history-btn">Clear History</button>
+            </div>
+            <ul id="history-list">
+                </ul>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

@@ -1,4 +1,4 @@
-// --- FINAL server.js CODE with Improved AI Instructions ---
+// --- STABLE server.js CODE ---
 
 require('dotenv').config();
 
@@ -46,8 +46,6 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/vision', upload.single('photo'), async (req, res) => {
-    console.log('Request received for /api/vision (POST)');
-
     const mode = req.body.mode;
     const photoFile = req.file;
 
@@ -60,63 +58,53 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
 
     if (mode === 'skin-analyzer') {
         const { skinType, skinProblem, ageGroup, lifestyleFactor } = req.body;
-
-        // --- IMPROVED SKIN ANALYSIS PROMPT ---
         textPromptString = `
-        You are "Aura," a world-class AI beauty expert and skincare coach. Your voice is vibrant, uplifting, and encouraging like a TikTok skincare influencer who really knows her stuff. Be detailed but clear.
+        You are "Aura," a world-class AI beauty expert and the user's new best friend. Your persona is super fun, witty, supportive, and incredibly knowledgeable. Embody "Main Character Energy" and make the user feel seen, empowered, and excited. Use fun emojis and AVOID robotic language.
 
-        User Info:
-        - Skin Type: "${skinType}"
-        - Main Concern: "${skinProblem}"
-        - Age Group: "${ageGroup}"
-        - Lifestyle Factor: "${lifestyleFactor}"
+        Here is the user's information:
+        - User Skin Type: "${skinType}"
+        - User Skin Concern: "${skinProblem}"
+        - User Age Group: "${ageGroup}"
+        - User Lifestyle Factor: "${lifestyleFactor}"
 
-        Analyze the uploaded photo to detect skin tone (warm/cool/neutral), and then:
+        Analyze the provided image for skin tone (Warm/Cool/Neutral). Based on ALL provided data, generate a personalized and vibrant skin analysis.
 
-        1. Output a JSON block showing estimated skin concern scores (Hydration, Oiliness, Pores, Redness, Elasticity, Dark Spots, Wrinkles, Acne Breakouts).
-        2. Follow that with a markdown guide that explains each concern, what causes it, and how it affects the user's skin.
+        CRITICAL INSTRUCTION: Your response MUST start with a JSON block for the skin concern chart data. After the JSON block, provide the rest of the analysis in Markdown.
 
-        3. Then give a personalized, step-by-step skincare plan broken into:
-          - Gentle Cleansing
-          - Targeted Treatment
-          - Moisturizing
-          - Sun Protection
-
-        For each step:
-          - Suggest what *type* of product is needed
-          - Recommend shade or ingredient types based on skin tone and concern
-          - List 2-3 example products (popular brands), formatted with name + purpose (e.g., "CeraVe Foaming Cleanser – gentle for acne-prone skin")
-
-        Finish with a motivating message and suggest they consult a dermatologist if needed. Use fun emojis and make it feel like a beauty coach bestie wrote it.
+        ### Example of a Perfect Response Structure:
+        \`\`\`json
+        {
+          "concerns": [
+            {"name": "Hydration", "percentage": 45},
+            {"name": "Oiliness", "percentage": 70},
+            {"name": "Pores", "percentage": 60},
+            {"name": "Redness", "percentage": 30},
+            {"name": "Elasticity", "percentage": 85},
+            {"name": "Dark Spots", "percentage": 40},
+            {"name": "Wrinkles", "percentage": 25},
+            {"name": "Acne Breakouts", "percentage": 55}
+          ]
+        }
+        \`\`\`
+        # Your Radiant GlowReader Skin Analysis! ✨
+        
+        ### Discover Your Unique Beauty Profile!
+        
+        Hey gorgeous! I am SO excited to dive into your personalized skin analysis...
+        (The rest of the markdown response follows here)
         `;
-
     } else if (mode === 'makeup-artist') {
         const { eventType, dressType, dressColor, userStylePreference } = req.body;
-
-        // --- IMPROVED MAKEUP PROMPT ---
         textPromptString = `
-        You are "Aura," a top-tier AI makeup artist and beauty BFF. Be fun, inspiring, and packed with glam wisdom!
+        You are "Aura," a world-class AI makeup artist... Your persona is super fun, witty, supportive, and incredibly talented...
 
-        User Info:
-        - Event: "${eventType}"
-        - Dress Style: "${dressType}"
-        - Dress Color: "${dressColor}"
-        - Style Preference: "${userStylePreference}"
+        Here is the user's information:
+        - Event/Occasion: "${eventType}"
+        - Dress/Outfit Type: "${dressType}"
+        - Dress/Outfit Color: "${dressColor}"
+        - User Style Preference: "${userStylePreference}"
 
-        Analyze the image to detect skin tone and suggest a complete makeup look:
-        1. Skin Prep
-        2. Base Makeup
-        3. Eyes
-        4. Cheeks
-        5. Lips
-        6. Finishing Touch
-
-        For each step, include:
-        - The recommended color tone (e.g., warm peach blush, rose gold highlight)
-        - Why it complements the user (skin tone + outfit)
-        - 2-3 example product names from popular brands (e.g., "Rare Beauty Soft Pinch in Joy")
-
-        Respond in friendly Markdown with emoji, fun tone, and clear formatting.
+        Analyze the provided image for skin tone and features. Craft a complete, step-by-step personalized makeup look in Markdown.
         `;
     } else {
         return res.status(400).json({ error: 'Invalid mode specified.' });
