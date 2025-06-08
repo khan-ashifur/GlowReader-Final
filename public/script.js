@@ -1,4 +1,7 @@
+// --- FULL script.js CODE ---
+
 document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM ELEMENT REFERENCES ---
     const modeSelect = document.getElementById('mode-select');
     const skinFields = document.getElementById('skin-analyzer-fields');
     const makeupFields = document.getElementById('makeup-artist-fields');
@@ -9,29 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyPanel = document.getElementById('history-panel');
     const historyList = document.getElementById('history-list');
     const clearHistoryBtn = document.getElementById('clear-history-btn');
-    let skinChartInstance = null;
-    let loadingInterval;
+    let skinChartInstance = null; // To hold the chart instance
 
-    const startLoaderAnimation = () => {
-        const dots = ['Analyzing', 'Analyzing.', 'Analyzing..', 'Analyzing...'];
-        let i = 0;
-        loader.innerText = dots[0];
-        loadingInterval = setInterval(() => {
-            loader.innerText = dots[i % dots.length];
-            i++;
-        }, 500);
-    };
-
-    const stopLoaderAnimation = () => {
-        clearInterval(loadingInterval);
-        loader.innerText = 'Analyzing... Please wait.';
-    };
-
+    // --- ONBOARDING LOGIC ---
     const handleOnboarding = () => {
         const hasVisited = localStorage.getItem('glowReaderVisited');
         if (!hasVisited) {
             const welcomeModal = document.getElementById('welcome-modal');
             welcomeModal.classList.add('visible');
+            
             const closeModalBtn = document.getElementById('close-modal-btn');
             closeModalBtn.addEventListener('click', () => {
                 welcomeModal.classList.remove('visible');
@@ -39,13 +28,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     };
-
+    
+    // --- CHART FUNCTION ---
     const renderSkinAnalysisChart = (concerns) => {
         const chartContainer = document.getElementById('chart-container');
         const chartCanvas = document.getElementById('skin-chart');
         chartContainer.style.display = 'block';
 
-        if (skinChartInstance) skinChartInstance.destroy();
+        if (skinChartInstance) {
+            skinChartInstance.destroy();
+        }
 
         const labels = concerns.map(c => c.name);
         const data = concerns.map(c => c.percentage);
@@ -64,12 +56,17 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             options: {
                 indexAxis: 'y',
-                scales: { x: { beginAtZero: true, max: 100 } },
-                plugins: { legend: { display: false } }
+                scales: {
+                    x: { beginAtZero: true, max: 100 }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
             }
         });
     };
 
+    // --- HISTORY MANAGEMENT FUNCTIONS ---
     const getHistory = () => JSON.parse(localStorage.getItem('glowReaderHistory')) || [];
 
     const saveToHistory = (type, content) => {
@@ -89,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const history = getHistory();
         historyList.innerHTML = '';
         historyPanel.style.display = history.length > 0 ? 'block' : 'none';
+
         history.forEach(item => {
             const li = document.createElement('li');
             li.dataset.id = item.id;
@@ -100,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             historyList.appendChild(li);
         });
     };
-
+    
     const displayFromHistory = (id) => {
         const item = getHistory().find(entry => entry.id == id);
         if (item) {
@@ -108,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
-
+    
     const clearHistory = () => {
         localStorage.removeItem('glowReaderHistory');
         renderHistory();
@@ -116,8 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (skinChartInstance) skinChartInstance.destroy();
     };
 
+    // --- RESPONSE HANDLING ---
     const handleApiResponse = (markdown) => {
-        resultContainer.innerHTML = '';
+        resultContainer.innerHTML = ''; // Clear previous results completely
+        
         const jsonRegex = /```json\s*([\s\S]*?)\s*```/;
         const match = markdown.match(jsonRegex);
         let markdownForDisplay = markdown;
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const jsonData = JSON.parse(match[1]);
                 if (jsonData.concerns) {
                     const chartContainerHtml = `<div id="chart-container" style="display: none;"><h3>Your Skin Concerns at a Glance</h3><canvas id="skin-chart"></canvas></div>`;
-                    resultContainer.innerHTML = chartContainerHtml;
+                    resultContainer.innerHTML = chartContainerHtml; // Add chart container first
                     renderSkinAnalysisChart(jsonData.concerns);
                 }
                 markdownForDisplay = markdown.replace(jsonRegex, '').trim();
@@ -135,62 +135,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Failed to parse JSON from markdown:", e);
             }
         }
-
+        
         const textResultDiv = document.createElement('div');
         textResultDiv.innerHTML = marked.parse(markdownForDisplay);
         resultContainer.appendChild(textResultDiv);
+        
         resultContainer.style.display = 'block';
     };
 
+    // --- EVENT LISTENERS ---
     modeSelect.addEventListener('change', () => {
         skinFields.style.display = modeSelect.value === 'skin-analyzer' ? 'block' : 'none';
         makeupFields.style.display = modeSelect.value === 'makeup-artist' ? 'block' : 'none';
     });
-
-    historyList.addEventListener('click', (e) => {
-        if (e.target.closest('li')) {
-            displayFromHistory(e.target.closest('li').dataset.id);
-        }
-    });
-
+    
+    historyList.addEventListener('click', (e) => (e.target.closest('li')) && displayFromHistory(e.target.closest('li').dataset.id));
     clearHistoryBtn.addEventListener('click', clearHistory);
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
-
         if (!photoUpload.files[0]) {
             resultContainer.innerHTML = `<p style="color: #e63946;">Please upload a photo to continue.</p>`;
             resultContainer.style.display = 'block';
             return;
         }
-
+        
         form.style.display = 'none';
         resultContainer.style.display = 'none';
         loader.style.display = 'block';
-        startLoaderAnimation();
 
         const formData = new FormData(form);
         try {
             const response = await fetch('/api/vision', { method: 'POST', body: formData });
-            if (!response.ok) throw new Error((await response.json()).error || 'Server error');
+            if (!response.ok) throw new Error((await response.json()).error || 'An unknown server error occurred.');
+            
             const result = await response.json();
             handleApiResponse(result.markdown);
-
-            const analysisType = modeSelect.value === 'skin-analyzer'
-                ? 'Skin Analysis'
+            
+            let analysisType = modeSelect.value === 'skin-analyzer' 
+                ? 'Skin Analysis' 
                 : `Makeup Look for ${formData.get('eventType') || 'Event'}`;
-
             saveToHistory(analysisType, result.markdown);
         } catch (error) {
-            resultContainer.innerHTML = `<p style="color: #e63946;"><strong>Error:</strong> ${error.message}</p>`;
+            resultContainer.innerHTML = `<p style="color: #e63946; font-weight: bold;">Oops! Something went wrong.</p><p style="color: #495057;">Error: ${error.message}</p>`;
             resultContainer.style.display = 'block';
         } finally {
-            stopLoaderAnimation();
             loader.style.display = 'none';
             form.style.display = 'block';
         }
     });
-
+    
+    // --- INITIALIZATION ---
     renderHistory();
     handleOnboarding();
 });
