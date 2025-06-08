@@ -1,135 +1,106 @@
-/* --- FULL style.css CODE --- */
-
-:root {
-    --background: #f4f1de;
-    --primary-text: #191924;
-    --accent-color: #836FFF;
-    --highlight-bg: #FFF7D4;
-    --card-bg: #ffffff;
-    --border-color: #e0e0e0;
-    --heading-font: 'Poppins', sans-serif;
-    --body-font: 'Poppins', sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
 }
 
 body {
-    font-family: var(--body-font);
-    background-color: var(--background);
-    color: var(--primary-text);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    margin: 0;
-    padding: 30px 15px;
-    box-sizing: border-box;
-}
-
-.main-content {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    width: 100%;
-    max-width: 1200px;
+  background-color: #f9f3e5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
 }
 
 .container {
-    background-color: var(--card-bg);
-    padding: 25px 30px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    width: 100%;
-    max-width: 650px;
-    flex: 1;
-    min-width: 400px;
-    position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  padding: 2rem;
+  position: relative;
 }
 
-header {
-    text-align: center;
-    margin-bottom: 25px;
+.card {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
 }
 
-header h1 {
-    font-family: var(--heading-font);
-    color: var(--primary-text);
-    font-weight: 700;
-    font-size: 2.5em;
-    margin: 0 0 5px 0;
+.card h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
-header p {
-    color: #6c757d;
-    margin: 0;
-    font-size: 1.1em;
+.card p {
+  margin-bottom: 1.5rem;
+  color: #666;
 }
 
-/* --- UPDATED FORM STYLES --- */
-.form-group {
-    margin-bottom: 1rem;
-    text-align: left; /* Align labels to the left */
-}
-
-/* NEW: Style for the 2x2 grid */
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 equal columns */
-    gap: 1rem; /* Space between grid items */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: #495057;
-    font-size: 0.9em; /* Slightly smaller label */
+  text-align: left;
+  font-weight: 600;
+  color: #444;
 }
 
-input[type="text"],
-input[type="file"],
-select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    box-sizing: border-box;
-    background-color: #f8f9fa;
-    font-family: var(--body-font);
-    font-size: 1em;
-    transition: border-color 0.2s, box-shadow 0.2s;
+select, input[type="file"] {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  width: 100%;
 }
 
-/* Remove margin from items inside the grid */
-.form-grid .form-group {
-    margin-bottom: 0;
+button {
+  background-color: #8b5cf6;
+  color: #fff;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 1rem;
 }
 
-/* Add margin back to items NOT in the grid */
-#analysis-form > .form-group {
-    margin-bottom: 1.5rem;
+button:hover {
+  background-color: #7c3aed;
 }
 
-input[type="text"]:focus,
-select:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(131, 111, 255, 0.2);
+.doodle {
+  width: 120px;
+  height: 400px;
+  background-image: url('https://i.imgur.com/QF3hY1y.png'); /* Replace with your own doodle image URL */
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
-.submit-btn {
-    width: 100%;
-    padding: 14px;
-    margin-top: 1rem; /* Add some space above the button */
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-family: var(--heading-font);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
+.doodle.left {
+  transform: rotate(-10deg);
 }
 
-/* ... The rest of your CSS for loader, results, history, etc. remains the same ... */
+.doodle.right {
+  transform: rotate(10deg);
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .doodle {
+    display: none; /* Hide doodles on mobile for cleaner UI */
+  }
+}
