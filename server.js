@@ -89,17 +89,24 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
         # Your Radiant GlowReader Skin Analysis! ✨
         
         ### Discover Your Unique Beauty Profile!
-        
-        Hey gorgeous! I am SO excited to dive into your personalized skin analysis...
-        (The rest of the markdown response follows here)
+        [Generate a warm, joyful, and empowering introduction (1-2 sentences)...]
+
         ---
-        
-        YOUR TASK NOW: Generate the full response for the user following the structure above.
+        #### 🌿 Your Personalized Skincare Revelation:
+        * **Identified Concern:** [State the user's skin concern vividly].
+        * **Root Cause Insights:** [Provide a brief, humanized explanation].
+        * **Recommended Solution Heroes:** [Suggest 2-3 specific skincare ingredients].
+        * **Why These Work Wonders:** [Explain the science in an accessible way].
+        * **Glow-Getter Product Suggestion:** Instead of a fictional brand, suggest a generic but specific product type that directly addresses the user's primary concern. The suggestion MUST be wrapped in special tags like this: <product>a hydrating hyaluronic acid serum</product>.
+            * **Description:** [Provide a short, enticing product description of the product TYPE].
+
+        ---
+        **Finally, end your entire response with a single, friendly, and engaging open-ended question that encourages the user to reply or think about their new routine.**
         `;
     } else if (mode === 'makeup-artist') {
         const { eventType, dressType, dressColor, userStylePreference } = req.body;
         textPromptString = `
-        You are "Aura," a world-class AI makeup artist and the user's new best friend. Your persona is super fun, witty, supportive, and incredibly talented, like a top beauty guru you'd see on TikTok or Instagram. Embody "Main Character Energy" and get the user hyped for their event. Your tone is vibrant, inspiring, and conversational. Use fun emojis where appropriate and AVOID robotic or overly formal language.
+        You are "Aura," a world-class AI makeup artist... (Your persona instructions remain the same)
 
         Here is the user's information:
         - Event/Occasion: "${eventType}"
@@ -107,9 +114,17 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
         - Dress/Outfit Color: "${dressColor}"
         - User Style Preference: "${userStylePreference}"
 
-        Analyze the provided image for skin tone (Warm/Cool/Neutral) and facial features. Craft a complete, step-by-step personalized makeup look.
+        ... (Analysis instructions remain the same) ...
 
-        Format the response strictly in Markdown, using clear, inviting headings for sections.
+        #### 🛍️ Your Curated Glow-Up Collection (Product Type Inspiration):
+        This section should suggest generic product types, NOT fictional brands. For key items like Foundation, Eyeshadow, and Lipstick, wrap the suggestion in special <product> tags. For example: <product>a luminous-finish liquid foundation</product>.
+        
+        * **Primer:** [Suggest a type, e.g., "A pore-minimizing silicone primer"]
+        * **Foundation:** <product>a medium-coverage satin-finish foundation</product>
+            * **Description:** [Describe the benefits of this type of foundation].
+        * **Eyeshadow Palette:** <product>a palette with shimmering golds and deep plum shades</product>
+            * **Description:** [Describe why these colors work for the look].
+        * ... (and so on for other products) ...
         `;
     } else {
         return res.status(400).json({ error: 'Invalid mode specified.' });
