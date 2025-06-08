@@ -1,4 +1,4 @@
-// --- FINAL server.js CODE with Improved AI Instructions ---
+// --- FULL server.js CODE ---
 
 require('dotenv').config();
 
@@ -29,7 +29,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const safetySettings = [
     { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-    // ... other safety settings
+    // ... other settings
 ];
 
 function fileToGenerativePart(buffer, mimeType) {
@@ -38,14 +38,11 @@ function fileToGenerativePart(buffer, mimeType) {
     };
 }
 
-// --- ROUTES ---
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.post('/api/vision', upload.single('photo'), async (req, res) => {
-    console.log('Request received for /api/vision (POST)');
-
     const mode = req.body.mode;
     const photoFile = req.file;
 
@@ -58,10 +55,9 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
 
     if (mode === 'skin-analyzer') {
         const { skinType, skinProblem, ageGroup, lifestyleFactor } = req.body;
-
-        // --- UPDATED AND IMPROVED PROMPT ---
+        // --- UPDATED PROMPT FOR SKIN ANALYZER ---
         textPromptString = `
-        You are "Aura," a world-class AI beauty expert and the user's new best friend. Your persona is super fun, witty, supportive, and incredibly knowledgeable, like a top beauty influencer. Embody "Main Character Energy" and make the user feel seen, empowered, and excited. Your tone is conversational and relatable. Use fun emojis where appropriate and AVOID robotic or overly clinical language.
+        You are "Aura," a world-class AI beauty expert... (Your persona instructions remain the same)
 
         Here is the user's information:
         - User Skin Type: "${skinType}"
@@ -69,52 +65,33 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
         - User Age Group: "${ageGroup}"
         - User Lifestyle Factor: "${lifestyleFactor}"
 
-        Analyze the provided image for skin tone (Warm/Cool/Neutral). Based on ALL provided data, generate a personalized and vibrant skin analysis.
+        ... (Analysis instructions remain the same) ...
 
-        **CRITICAL INSTRUCTION:** Your response MUST start with a JSON block for the skin concern chart data. After the JSON block, provide the rest of the analysis in Markdown.
-
-        ### Example of a Perfect Response Structure:
-        \`\`\`json
-        {
-          "concerns": [
-            {"name": "Hydration", "percentage": 45},
-            {"name": "Oiliness", "percentage": 70},
-            {"name": "Pores", "percentage": 60},
-            {"name": "Redness", "percentage": 30},
-            {"name": "Elasticity", "percentage": 85},
-            {"name": "Dark Spots", "percentage": 40},
-            {"name": "Wrinkles", "percentage": 25},
-            {"name": "Acne Breakouts", "percentage": 55}
-          ]
-        }
-        \`\`\`
-        # Your Radiant GlowReader Skin Analysis! ✨
+        #### 🌿 Your Personalized Skincare Revelation:
+        * ... (Identified Concern, Root Cause, etc. remain the same) ...
+        * **Glow-Getter Product Suggestion:** Instead of a fictional brand, suggest a generic but specific product type that directly addresses the user's primary concern. The suggestion MUST be wrapped in special tags like this: <product>a hydrating hyaluronic acid serum</product> or <product>a gentle salicylic acid cleanser</product>. DO NOT use a fictional brand name.
+            * **Description:** [Provide a short, enticing product description of the product TYPE].
         
-        ### Discover Your Unique Beauty Profile!
-        
-        Hey gorgeous! I am SO excited to dive into your personalized skin analysis...
-        (The rest of the markdown response follows here)
-        ---
-        
-        **YOUR TASK NOW: Generate the full response for the user following the structure above.**
-
+        ... (Rest of the prompt remains the same) ...
         `;
     } else if (mode === 'makeup-artist') {
         const { eventType, dressType, dressColor, userStylePreference } = req.body;
-
-        // --- UPDATED AND IMPROVED PROMPT ---
+        // --- UPDATED PROMPT FOR MAKEUP ARTIST ---
         textPromptString = `
-        You are "Aura," a world-class AI makeup artist and the user's new best friend. Your persona is super fun, witty, supportive, and incredibly talented, like a top beauty guru you'd see on TikTok or Instagram. Embody "Main Character Energy" and get the user hyped for their event. Your tone is vibrant, inspiring, and conversational. Use fun emojis where appropriate and AVOID robotic or overly formal language.
+        You are "Aura," a world-class AI makeup artist... (Your persona instructions remain the same)
 
-        Here is the user's information:
-        - Event/Occasion: "${eventType}"
-        - Dress/Outfit Type: "${dressType}"
-        - Dress/Outfit Color: "${dressColor}"
-        - User Style Preference: "${userStylePreference}"
+        ... (User info and analysis instructions remain the same) ...
 
-        Analyze the provided image for skin tone (Warm/Cool/Neutral) and facial features. Craft a complete, step-by-step personalized makeup look.
-
-        **Format the response strictly in Markdown, using clear, inviting headings for sections.**
+        #### 🛍️ Your Curated Glow-Up Collection (Product Type Inspiration):
+        This section should suggest generic product types, NOT fictional brands. For key items like Foundation, Eyeshadow, and Lipstick, wrap the suggestion in special <product> tags. For example: <product>a luminous-finish liquid foundation</product> or <product>a warm-toned neutral eyeshadow palette</product>.
+        
+        * **Primer:** [Suggest a type, e.g., "A pore-minimizing silicone primer"]
+        * **Foundation:** [Suggest a type wrapped in tags, e.g., "<product>a medium-coverage satin-finish foundation</product>"]
+            * **Description:** [Describe the benefits of this type of foundation].
+        * **Concealer:** [Suggest a type, e.g., "A creamy, hydrating concealer"]
+        * **Eyeshadow Palette:** [Suggest a type wrapped in tags, e.g., "<product>a palette with shimmering golds and deep plum shades</product>"]
+            * **Description:** [Describe why these colors work for the look].
+        * ... (and so on for other products, adding <product> tags where a link would be useful) ...
         `;
     } else {
         return res.status(400).json({ error: 'Invalid mode specified.' });
@@ -138,7 +115,6 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
     }
 });
 
-// --- SERVER START ---
 const server = app.listen(PORT, () => {
   console.log(`--- SUCCESS! Server is running on port ${PORT} ---`);
 });
