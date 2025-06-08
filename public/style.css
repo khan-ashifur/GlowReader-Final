@@ -197,6 +197,22 @@ select:focus {
     z-index: 2;
 }
 
+/* --- NEW PUSHPIN STYLE --- */
+#history-list li::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background-color: #e63946; /* Red for the pin head */
+    border-radius: 50%;
+    box-shadow: 0 0 3px rgba(0,0,0,0.3);
+    border: 1px solid #fff;
+}
+
+
 #history-list li.new-item::after {
     content: 'New!';
     position: absolute;
@@ -221,12 +237,15 @@ select:focus {
     font-weight: 600;
     color: var(--accent-color);
     display: block;
+    text-align: center; /* Center text under the pin */
+    padding-top: 5px; /* Add space below the pin */
 }
 
 #history-list .history-item-date {
     font-size: 0.85em;
     color: #6c757d;
     margin-top: 4px;
+    text-align: center; /* Center date */
 }
 
 .result-section h1, .result-section h3, .result-section h4 {
@@ -253,7 +272,7 @@ select:focus {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
-    display: none; /* Changed initial state */
+    display: none;
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -262,7 +281,7 @@ select:focus {
 }
 
 .modal-overlay.visible {
-    display: flex; /* Changed to flex to enable display */
+    display: flex;
     opacity: 1;
 }
 
@@ -311,7 +330,6 @@ select:focus {
     transform: translateY(-2px);
 }
 
-/* NEW: Chart Container Styles */
 #chart-container {
     margin-bottom: 25px;
     padding-bottom: 20px;
