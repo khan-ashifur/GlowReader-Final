@@ -1,74 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GlowReader AI Beauty Assistant</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlowReader AI Beauty Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="main-content">
-    <div class="container">
-      <header>
-        <h1>Meet Aura ✨</h1>
-        <p>Your AI beauty BFF for personalized skin & makeup</p>
-      </header>
 
-      <form id="analysis-form">
-        <div class="form-group wide">
-          <label for="mode-select">Analysis Mode:</label>
-          <select id="mode-select" name="mode" required>
-            <option value="skin-analyzer">Skin Analyzer</option>
-            <option value="makeup-artist">Makeup Artist</option>
-          </select>
+    <div id="welcome-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Hey, I'm Aura! ✨</h2>
+            <p>Sooo stoked you're here! I'm your new AI beauty BFF, ready to help you find the perfect look.</p>
+            <p>Just upload a clear photo, tell me a little about what you're looking for, and I'll give you some personalized ideas!</p>
+            <button id="close-modal-btn">Let's Glow!</button>
         </div>
-
-        <div class="form-group wide">
-          <label for="photo-upload">Upload Photo:</label>
-          <input type="file" id="photo-upload" name="photo" accept="image/*" required />
-        </div>
-
-        <div id="skin-analyzer-fields" class="mode-fields wide">
-          <select name="skinType"><option>Normal</option><option>Oily</option><option>Dry</option><option>Combination</option><option>Sensitive</option></select>
-          <select name="skinProblem"><option>Acne</option><option>Dark Spots</option><option>Wrinkles & Fine Lines</option><option>Redness</option><option>Dullness</option></select>
-          <select name="ageGroup"><option>13-19</option><option>20-29</option><option>30-39</option><option>40-49</option><option>50+</option></select>
-          <select name="lifestyleFactor"><option>Low Sun Exposure</option><option>High Sun Exposure</option><option>High Stress</option><option>Active</option></select>
-        </div>
-
-        <div id="makeup-artist-fields" class="mode-fields wide" style="display:none;">
-          <input name="eventType" placeholder="Event (e.g. Wedding)" />
-          <input name="dressType" placeholder="Dress Type (e.g. Silk Dress)" />
-          <input name="dressColor" placeholder="Dress Color (e.g. Navy Blue)" />
-          <select name="userStylePreference"><option>Natural</option><option>Glamorous</option><option>Bold & Dramatic</option><option>Minimalist</option></select>
-        </div>
-
-        <button type="submit" class="submit-btn">Ask Aura</button>
-      </form>
-
-      <div id="loader" style="display:none;text-align:center;padding:20px;">
-        <p>✨ Analyzing your glow… please wait 💖</p>
-      </div>
-
-      <div id="result-container" class="result-section" style="display:none;">
-        <div id="chart-container" style="display:none;height:250px;margin-bottom:20px;">
-          <h3>Your Skin Concerns at a Glance</h3>
-          <canvas id="skin-chart"></canvas>
-        </div>
-
-        <img id="result-image" src="" alt="User photo" style="width:150px;border-radius:10px;display:none;margin:0 auto 20px;" />
-
-        <p><strong>Skin Tone:</strong> <span id="skin-tone">–</span></p>
-        <p><strong>Lipstick Match:</strong> <span id="lipstick">–</span></p>
-        <p><strong>Pro Tip:</strong> <span id="pro-tip">–</span></p>
-
-        <div id="markdown-output"></div>
-      </div>
     </div>
-  </div>
+    
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <h1>Meet Aura ✨</h1>
+                <p>Your AI beauty BFF for personalized skin & makeup advice.</p>
+            </header>
 
-  <script src="script.js"></script>
+            <form id="analysis-form">
+                <div class="form-group">
+                    <label for="mode-select">Select Analysis Mode:</label>
+                    <select id="mode-select" name="mode" required>
+                        <option value="skin-analyzer">Skin Analyzer</option>
+                        <option value="makeup-artist">Makeup Artist</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="photo-upload">Upload a clear, well-lit photo of your face:</label>
+                    <input type="file" id="photo-upload" name="photo" accept="image/*" required>
+                </div>
+
+                <div id="skin-analyzer-fields" class="mode-fields">
+                    <div class="form-group">
+                        <label for="skin-type">Skin Type:</label>
+                        <select id="skin-type" name="skinType">
+                            <option>Normal</option>
+                            <option>Oily</option>
+                            <option>Dry</option>
+                            <option>Combination</option>
+                            <option>Sensitive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="skin-problem">Main Concern:</label>
+                        <select id="skin-problem" name="skinProblem">
+                            <option>Acne</option>
+                            <option>Dark Spots</option>
+                            <option>Wrinkles & Fine Lines</option>
+                            <option>Redness</option>
+                            <option>Dullness</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                         <label for="age-group">Age Group:</label>
+                        <select id="age-group" name="ageGroup">
+                            <option>13-19</option>
+                            <option>20-29</option>
+                            <option>30-39</option>
+                            <option>40-49</option>
+                            <option>50+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                         <label for="lifestyle">Lifestyle:</label>
+                        <select id="lifestyle" name="lifestyleFactor">
+                            <option>Low Sun Exposure</option>
+                            <option>High Sun Exposure</option>
+                            <option>High Stress</option>
+                            <option>Active</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="makeup-artist-fields" class="mode-fields" style="display: none;">
+                    </div>
+
+                <button type="submit" class="submit-btn">Ask Aura</button>
+            </form>
+
+            <div id="loader">
+                <p>Analyzing... Please wait.</p>
+            </div>
+
+            <div id="result-container" class="result-section">
+                </div>
+        </div>
+
+        <div id="history-panel" class="container" style="display: none;">
+             </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
