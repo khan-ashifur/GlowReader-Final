@@ -1,136 +1,138 @@
-/* ==== RESET & BASE ==== */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
 body {
-  background: #fdf1f9;
-  height: 100vh;
+  margin: 0;
   font-family: 'Poppins', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
+  background: #fffafc;
   position: relative;
-  padding: 1rem;
+  overflow-x: hidden;
 }
 
-/* ==== ANIMATED BLUSH GLOW ==== */
-.aura-blobs {
+.background {
+  background-image: url('your-doodle-background.png'); /* replace with your doodle image */
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: cover;
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  opacity: 0.1;
   z-index: 0;
-  overflow: hidden;
 }
 
-.blob {
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.5;
-  animation: floatGlow 12s ease-in-out infinite alternate;
-}
-
-.blob1 { background: #ff9aeb; top: 20%; left: 10%; animation-delay: 0s; }
-.blob2 { background: #ff65a3; top: 50%; left: 60%; animation-delay: 2s; }
-.blob3 { background: #ffa0c5; top: 70%; left: 30%; animation-delay: 4s; }
-
-@keyframes floatGlow {
-  0%   { transform: translate(0, 0) scale(1); opacity: 0.4; }
-  50%  { transform: translate(20px, -20px) scale(1.1); opacity: 0.6; }
-  100% { transform: translate(-20px, 20px) scale(1); opacity: 0.4; }
-}
-
-/* ==== FORM CARD ==== */
 .container {
-  background: #fff;
-  padding: 2rem;
-  max-width: 500px;
-  width: 100%;
+  position: relative;
   z-index: 2;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-
-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
+  background: #fff;
+  padding: 2.5rem 2rem;
+  max-width: 480px;
+  width: 100%;
+  margin: 2rem auto;
+  border-radius: 22px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
 }
 
 header h1 {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #222;
+  color: #ff4a94;
 }
 
 header p {
-  font-size: 1rem;
-  color: #666;
+  font-size: 0.95rem;
+  color: #444;
   margin-top: 0.5rem;
 }
 
-/* ==== FORM FIELDS ==== */
-.form-group {
+.form-group label {
+  font-size: 0.92rem;
+  color: #444;
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+input[type="file"] {
+  padding: 10px;
+  background: #fce4ec;
+  border: 2px dashed #ff80ab;
+  border-radius: 12px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.analyze-btn {
+  background-color: #ff4a94;
+  color: #fff;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.typing-animation {
+  font-style: italic;
+  font-size: 1rem;
+  color: #ff4a94;
+  text-align: center;
+  margin-top: 1.5rem;
+  animation: blink 1s step-start 0s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.result-card {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #fff0f5;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+.image-container {
+  text-align: center;
+}
+
+.result-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 3px solid #ff4a94;
   margin-bottom: 1rem;
 }
 
-label {
-  font-weight: 600;
-  margin-bottom: 0.3rem;
-  display: block;
-  color: #444;
+.analysis-details h2 {
+  text-align: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: #d81b60;
 }
 
-input[type="text"],
-input[type="file"],
-select {
-  width: 100%;
-  padding: 0.6rem 0.8rem;
+.detail-item,
+.tip-item {
+  margin-bottom: 0.8rem;
   font-size: 0.95rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  transition: 0.3s;
 }
 
-input:focus,
-select:focus {
-  border-color: #bb6bd9;
-  outline: none;
-}
-
-/* ==== BUTTON ==== */
-.submit-btn {
-  width: 100%;
-  padding: 0.75rem;
-  background: #9b59b6;
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.submit-btn:hover {
-  background: #884ea0;
-}
-
-/* ==== TYPING LOADER ==== */
-.loader-container {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem 0;
-}
-
-.typing-text {
-  font-size: 1.2rem;
-  font-weight: 600;
+.label {
+  font-weight: bold;
   color: #333;
-  white-space: nowrap;
-  overflow: hidden;
-  border-right: 3px solid #ff65a3;
-  width: 0;
-  animation: typing 3
+}
+
+.value,
+.tip-text {
+  display: inline-block;
+  margin-left: 0.5rem;
+  color: #d81b60;
+}
+
+.hidden {
+  display: none;
+}

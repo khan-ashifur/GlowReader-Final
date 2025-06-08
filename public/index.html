@@ -2,79 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GlowReader AI Beauty Assistant</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GlowReader - AI Beauty Match</title>
+  <link href="style.css" rel="stylesheet" />
 </head>
 <body>
-  <!-- 🌸 Animated Blush Background -->
-  <div class="aura-blobs">
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-    <div class="blob blob3"></div>
-  </div>
+  <div class="background"></div>
 
-  <!-- 💫 GlowReader Card UI -->
   <div class="container">
     <header>
-      <h1>Meet Aura ✨</h1>
-      <p>Your AI beauty BFF for personalized skin & makeup advice.</p>
+      <h1>Hey! I’m Aura 👋</h1>
+      <p>Let me help you find your perfect makeup match ✨</p>
     </header>
 
     <form id="analysis-form">
       <div class="form-group">
-        <label for="mode-select">Select Analysis Mode:</label>
-        <select id="mode-select" name="mode" required>
-          <option value="skin-analyzer">Skin Analyzer</option>
-          <option value="makeup-artist">Makeup Artist</option>
-        </select>
+        <label for="photo-upload">Upload Your Selfie</label>
+        <input type="file" id="photo-upload" accept="image/*" required />
       </div>
 
-      <div class="form-group">
-        <label for="photo-upload">Upload a clear, well-lit photo:</label>
-        <input type="file" id="photo-upload" name="photo" accept="image/*" required />
-      </div>
-
-      <div id="skin-analyzer-fields" class="mode-fields">
-        <div class="form-group"><select name="skinType"><option>Skin Type: Normal</option><option>Oily</option><option>Dry</option></select></div>
-        <div class="form-group"><select name="skinProblem"><option>Main Concern: Acne</option><option>Dark Spots</option></select></div>
-        <div class="form-group"><select name="ageGroup"><option>Age Group: 13–19</option><option>20–29</option></select></div>
-        <div class="form-group"><select name="lifestyleFactor"><option>Lifestyle: Low Sun Exposure</option><option>High Stress</option></select></div>
-      </div>
-
-      <div id="makeup-artist-fields" class="mode-fields" style="display:none;">
-        <div class="form-group"><input type="text" name="eventType" placeholder="Event: e.g. Wedding" /></div>
-        <div class="form-group"><input type="text" name="dressType" placeholder="Outfit: e.g. Silk Dress" /></div>
-        <div class="form-group"><input type="text" name="dressColor" placeholder="Color: e.g. Red" /></div>
-        <div class="form-group"><select name="userStylePreference"><option>Natural</option><option>Bold</option></select></div>
-      </div>
-
-      <button type="submit" class="submit-btn">Ask Aura</button>
+      <button type="submit" class="analyze-btn">✨ Analyze My Look</button>
     </form>
 
-    <!-- ✨ Typing Loader -->
-    <div id="loader" class="loader-container" style="display:none;">
-      <div class="typing-text">Analyzing your beauty data</div>
-      <div class="loader-dots"></div>
-    </div>
+    <div id="loader" class="typing-animation hidden">Analyzing your beauty... 💫</div>
 
-    <!-- 🎯 Result Output -->
-    <div id="result-container"></div>
-
-    <!-- 🕘 History -->
-    <div id="history-panel" style="display: none;">
-      <div class="history-header">
-        <h2>Recent Analyses</h2>
-        <button id="clear-history-btn">Clear History</button>
+    <div id="result-container" class="result-card hidden">
+      <div class="image-container">
+        <img id="result-image" src="" alt="Uploaded face" class="result-image"/>
       </div>
-      <ul id="history-list"></ul>
+      <div class="analysis-details">
+        <h2>Your Glow Match</h2>
+        <div class="detail-item">
+          <span class="label">Skin Tone:</span>
+          <span class="value" id="skin-tone">–</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Lipstick Match:</span>
+          <span class="value" id="lipstick">–</span>
+        </div>
+        <div class="tip-item">
+          <span class="label">Pro Tip:</span>
+          <p class="tip-text" id="pro-tip">–</p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- 🔌 JS & Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
