@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlowReader - Your Personal Beauty Analyzer</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+    <header class="container">
+        <h1>GlowReader ✨</h1>
+        <p>Your ultimate AI-powered beauty companion.</p>
+    </header>
+
+    <main class="container">
+        <!-- Mode Selection Buttons -->
+        <div class="mode-selection">
+            <button id="skin-analyzer-btn" class="active">Skin Analyzer</button>
+            <button id="makeup-artist-btn">Makeup Artist</button>
+        </div>
+
+        <!-- Skin Analyzer Section -->
+        <div id="skin-analyzer-section" class="content-section">
+            <h2>1. Upload a Selfie</h2>
+            <p>Use a clear photo in natural lighting for the best results.</p>
+            <input type="file" id="photo-upload-skin" accept="image/png, image/jpeg">
+
+            <h2>2. Answer a Few Questions</h2>
+            <form id="user-form">
+                <label for="skin-type">What is your primary skin type?</label>
+                <select id="skin-type" name="skin-type">
+                    <option value="dry">Dry</option>
+                    <option value="oily">Oily</option>
+                    <option value="combination">Combination</option>
+                    <option value="normal">Normal</option>
+                    <option value="sensitive">Sensitive</option>
+                </select>
+
+                <label for="skin-problem">What is your main skin concern?</label>
+                <input type="text" id="skin-problem" name="skin-problem" placeholder="e.g., Acne, Fine Lines, Redness, Dark Spots, Dullness">
+                
+                <label for="age-group">Which age group are you in?</label>
+                <select id="age-group" name="age-group">
+                    <option value="13-19">13-19</option>
+                    <option value="20-30">20-30</option>
+                    <option value="31-40">31-40</option>
+                    <option value="41-50">41-50</option>
+                    <option value="51-60">51-60</option>
+                    <option value="60+">60+</option>
+                </select>
+
+                <label for="lifestyle-factor">Any relevant lifestyle factors?</label>
+                <input type="text" id="lifestyle-factor" name="lifestyle-factor" placeholder="e.g., Active, City-dweller, Outdoorsy, Stress-prone">
+
+                <button type="submit">Analyze My Profile</button>
+            </form>
+        </div>
+
+        <!-- Makeup Artist Section -->
+        <div id="makeup-artist-section" class="content-section hidden">
+            <h2>Your Personal Makeup Artist 🎨</h2>
+            <p>Let's craft your perfect look! Upload a photo and tell us about your event.</p>
+            <form id="makeup-form">
+                <label for="photo-upload-makeup">Upload a Photo for Makeup</label>
+                <p>A clear photo of your face or a general style reference works best.</p>
+                <input type="file" id="photo-upload-makeup" accept="image/png, image/jpeg">
+
+                <label for="makeup-event">What's the Event/Occasion?</label>
+                <input type="text" id="makeup-event" name="makeup-event" placeholder="e.g., Wedding, Casual Day Out, Party, Job Interview">
+
+                <label for="makeup-dress">Describe your Dress/Outfit Type:</label>
+                <input type="text" id="makeup-dress" name="makeup-dress" placeholder="e.g., Formal Gown, Casual Jeans, Business Suit, Flowy Dress">
+
+                <label for="makeup-dress-color">What Color is Your Dress/Outfit?</label>
+                <input type="text" id="makeup-dress-color" name="makeup-dress-color" placeholder="e.g., Red, Navy Blue, Pastel Green">
+
+                <label for="user-style-preference">Any personal style preference?</label>
+                <input type="text" id="user-style-preference" name="user-style-preference" placeholder="e.g., Minimalist, Bold, Trendy, Classic">
+
+                <button type="submit" id="get-makeup-advice-btn">Get My Makeup Look</button>
+            </form>
+        </div>
+
+
+        <div id="results-section" class="hidden">
+            <h2>Your Personalized Results</h2>
+            <div class="chart-container">
+                <h3>Your Skin Concern Snapshot</h3>
+                <canvas id="skin-concern-chart" width="300" height="300"></canvas>
+            </div>
+            
+            <div id="results-card">
+                </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
