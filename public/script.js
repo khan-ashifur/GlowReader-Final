@@ -1,4 +1,4 @@
-// --- GlowReader script.js ---
+// --- GlowReader script.js (Enhanced) ---
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('analysis-form');
   const modeSelect = document.getElementById('mode-select');
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let skinChartInstance = null;
 
   function renderChart(concerns) {
-    const labels = concerns.map(c => c.name);
+    const labels = concerns.map(c => `${c.name} (${c.percentage}%)`);
     const data = concerns.map(c => c.percentage);
 
     if (skinChartInstance) skinChartInstance.destroy();
@@ -27,25 +27,36 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: labels,
         datasets: [{
-          label: 'Concern Level',
+          label: 'Skin Concern %',
           data: data,
-          backgroundColor: 'rgba(131, 111, 255, 0.6)',
-          borderColor: 'rgba(131, 111, 255, 1)',
-          borderWidth: 1
+          backgroundColor: 'rgba(255, 99, 132, 0.7)',
+          borderRadius: 6,
+          borderSkipped: false
         }]
       },
       options: {
         indexAxis: 'y',
-        scales: { x: { beginAtZero: true, max: 100 } },
-        plugins: { legend: { display: false } }
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { beginAtZero: true, max: 100, grid: { display: false } },
+          y: { grid: { display: false }, ticks: { font: { size: 14 } } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => `${ctx.raw}%` } }
+        }
       }
     });
+
     chartContainer.style.display = 'block';
   }
 
+  // Toggle fields side by side
   modeSelect.addEventListener('change', () => {
-    skinFields.style.display = modeSelect.value === 'skin-analyzer' ? 'block' : 'none';
-    makeupFields.style.display = modeSelect.value === 'makeup-artist' ? 'block' : 'none';
+    const selected = modeSelect.value;
+    skinFields.style.display = selected === 'skin-analyzer' ? 'flex' : 'none';
+    makeupFields.style.display = selected === 'makeup-artist' ? 'flex' : 'none';
   });
 
   form.addEventListener('submit', async (e) => {
@@ -78,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
           if (jsonData.concerns) renderChart(jsonData.concerns);
           markdownForDisplay = markdown.replace(jsonRegex, '').trim();
 
-          // If included in JSON, extract skin details
           if (jsonData.skinTone) skinToneEl.textContent = jsonData.skinTone;
           if (jsonData.lipstick) lipstickEl.textContent = jsonData.lipstick;
           if (jsonData.tip) proTipEl.textContent = jsonData.tip;
@@ -87,11 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // Render markdown result
       markdownOutput.innerHTML = marked.parse(markdownForDisplay);
       resultContainer.style.display = 'block';
 
-      // Image preview
       if (photoUpload.files[0]) {
         const reader = new FileReader();
         reader.onload = () => {
