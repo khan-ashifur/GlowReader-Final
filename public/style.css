@@ -1,74 +1,64 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+:root {
+    --background: #f4f1de;
+    --primary-text: #191924;
+    --accent-color: #836FFF;
+    --highlight-bg: #FFF7D4;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --heading-font: 'Poppins', sans-serif;
+    --body-font: 'Poppins', sans-serif;
 }
 
 body {
-  background: #fefaf0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  min-height: 100vh;
+    font-family: var(--body-font);
+    background-color: var(--background);
+    color: var(--primary-text);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding: 30px 15px;
+    box-sizing: border-box;
 }
 
-.aura-card {
-  background-color: white;
-  border-radius: 16px;
-  padding: 2rem 2rem 2.5rem;
-  max-width: 480px;
-  width: 100%;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-  text-align: center;
+.main-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
 }
 
-.aura-card h1 {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin-bottom: 0.3rem;
+.container {
+    background-color: var(--card-bg);
+    padding: 25px 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 650px;
+    flex: 1;
+    min-width: 400px;
+    position: relative;
 }
 
-.aura-card p {
-  font-size: 0.95rem;
-  color: #666;
-  margin-bottom: 1.5rem;
+header {
+    text-align: center;
+    margin-bottom: 25px;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  text-align: left;
+header h1 {
+    font-family: var(--heading-font);
+    color: var(--primary-text);
+    font-weight: 700;
+    font-size: 2.5em;
+    margin: 0 0 5px 0;
 }
 
-label {
-  font-weight: 600;
-  font-size: 0.93rem;
-}
-
-select,
-input[type="file"] {
-  padding: 0.55rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  width: 100%;
-}
-
-button {
-  margin-top: 1.2rem;
-  background-color: #8b5cf6;
-  color: white;
-  border: none;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border-radius: 8px;
-  width: 100%;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background-color: #7a3efd;
+header p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 1em; /* Fixed line */
 }
