@@ -1,42 +1,37 @@
-// --- FINAL server.js with Correct Static Paths ---
+// --- FINAL server.js for Render Deployment ---
 
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
-const {
-  GoogleGenerativeAI,
-  HarmCategory,
-  HarmBlockThreshold
-} = require('@google/generative-ai');
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 
 const app = express();
 const upload = multer();
 
-const PORT = process.env.PORT || 3000;
-
-// --- Middlewares ---
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Serve static files like style.css from root
-app.use(express.static(__dirname));
+// ✅ Serve static files from 'public' folder
+app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ Load homepage
+// ✅ Optional: Manually serve index.html (or let the static middleware handle it)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// --- Gemini API Setup ---
+const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.GOOGLE_API_KEY;
+
 if (!API_KEY) {
-  console.error('❌ GOOGLE_API_KEY not found in .env!');
+  console.error('❌ GOOGLE_API_KEY missing in .env');
   process.exit(1);
 }
+
 const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 const safetySettings = [
   { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
@@ -49,12 +44,11 @@ function fileToGenerativePart(buffer, mimeType) {
   return {
     inlineData: {
       data: buffer.toString('base64'),
-      mimeType
-    }
+      mimeType,
+    },
   };
 }
 
-// --- Vision API Route ---
 app.post('/api/vision', upload.single('photo'), async (req, res) => {
   const mode = req.body.mode;
   const photoFile = req.file;
@@ -69,17 +63,14 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
   if (mode === 'skin-analyzer') {
     const { skinType, skinProblem, ageGroup, lifestyleFactor } = req.body;
     textPromptString = `
-You are "Aura," a world-class AI beauty expert. Fun, witty, and supportive — your job is to make the user feel amazing 💖.
+You are "Aura," a fun and talented AI beauty expert. Analyze the uploaded photo to detect skin tone (Warm/Cool/Neutral). Based on this and the following inputs:
+- Skin Type: ${skinType}
+- Skin Problem: ${skinProblem}
+- Age Group: ${ageGroup}
+- Lifestyle Factor: ${lifestyleFactor}
 
-User data:
-- Skin Type: "${skinType}"
-- Concern: "${skinProblem}"
-- Age Group: "${ageGroup}"
-- Lifestyle: "${lifestyleFactor}"
+Return a JSON chart of skin concerns and a markdown analysis.
 
-Analyze the uploaded image to determine skin tone. Then generate a JSON concern chart, followed by a vibrant Markdown skin analysis.
-
-### Example:
 \`\`\`json
 {
   "concerns": [
@@ -89,49 +80,45 @@ Analyze the uploaded image to determine skin tone. Then generate a JSON concern 
 }
 \`\`\`
 
-# Your Radiant GlowReader Skin Analysis ✨
-(Then continue with fun, human-style breakdown)
-    `;
+Follow with markdown tips like a beauty blog post.
+`;
   } else if (mode === 'makeup-artist') {
     const { eventType, dressType, dressColor, userStylePreference } = req.body;
     textPromptString = `
-You are "Aura," the ultimate Gen Z AI makeup guru 💄. Help the user look amazing for their event.
+You are "Aura," an AI makeup stylist. Analyze the user's photo for face shape and skin tone.
 
-User Info:
-- Event: "${eventType}"
-- Dress: "${dressType}" in "${dressColor}"
-- Style: "${userStylePreference}"
+Event: ${eventType}
+Dress Type: ${dressType}
+Dress Color: ${dressColor}
+Style Preference: ${userStylePreference}
 
-Analyze the face from the image and recommend a stunning, personalized makeup routine in Markdown.
-    `;
+Return a markdown step-by-step makeup guide tailored to them.
+`;
   } else {
-    return res.status(400).json({ error: 'Invalid mode specified.' });
+    return res.status(400).json({ error: 'Invalid mode.' });
   }
 
   try {
     const result = await model.generateContent({
-      contents: [{
-        parts: [{ text: textPromptString }, imagePart]
-      }],
-      safetySettings
+      contents: [
+        {
+          parts: [{ text: textPromptString }, imagePart],
+        },
+      ],
+      safetySettings,
     });
 
-    const response = await result.response;
-    const markdown = response.text();
+    const markdown = result.response.text();
     res.json({ markdown });
-
-  } catch (error) {
-    console.error('❌ Gemini API Error:', error);
-    res.status(500).json({
-      error: 'AI analysis failed.',
-      details: error.message
-    });
+  } catch (err) {
+    console.error('❌ Gemini API error:', err);
+    res.status(500).json({ error: 'Failed to get response from AI.', details: err.message });
   }
 });
 
-// --- Start Server ---
+// ✅ Start server
 const server = app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`✅ Server live at http://localhost:${PORT}`);
 });
 
 server.on('error', (err) => {
