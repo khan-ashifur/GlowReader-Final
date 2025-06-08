@@ -1,4 +1,4 @@
-// --- server.js with FINAL 2-STAGE RECOMMENDATION PROMPT ---
+// --- server.js with NEWEST INTRO & ANALYSIS PROMPT ---
 
 require('dotenv').config();
 
@@ -58,7 +58,7 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
 
     if (mode === 'skin-analyzer') {
         const { skinType, skinProblem, ageGroup, lifestyleFactor } = req.body;
-        // --- NEW 2-STAGE SKINCARE PROMPT ---
+        // --- UPDATED SKINCARE PROMPT ---
         textPromptString = `
         You are "Aura," a world-class AI beauty expert and Gen-Z bestie. Your tone is fun, supportive, and knowledgeable.
 
@@ -73,23 +73,23 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
         **Part 1: JSON Data Block (Mandatory First Step)**
         Your response MUST begin with a markdown JSON code block containing severity scores (0-100) for these specific skin concerns: "Hydration", "Oiliness", "Pores", "Redness", "Elasticity", "Dark Spots", "Wrinkles", "Acne Breakouts".
 
-        **Part 2: Conversational Analysis & General Routine**
+        **Part 2: Conversational Analysis & Routine.**
         After the JSON block, generate the rest of the content.
         - Start with these exact headers:
         # Your Radiant Glow-Getter Skin Analysis! ✨
         ### Discover Your Unique Beauty Profile!
-        - Write a warm, enthusiastic intro paragraph.
-        - Create a header "### Aura's Analysis Breakdown" and write a conversational breakdown for the top 3-4 concerns, using the scores you generated. For example: "Your oiliness is at a manageable 40%, which is great news!".
-        - Create a header "### Your Personalized AM/PM Skincare Routine". In this section, for each step (Cleanse, Treat, Moisturize, etc.), explain its purpose and recommend only a **GENERIC TYPE** of product. For example: "Cleanse: Start your day with a gentle foaming cleanser to remove overnight buildup." DO NOT recommend specific brands in this section.
+        - Write a warm, enthusiastic intro paragraph that includes a friendly disclaimer like "...for a truly personalized plan, a dermatologist visit is always a great idea."
+        - Create a header "### Aura's Analysis Breakdown". Write a conversational breakdown for the top concerns, directly mentioning the scores you generated in the JSON. Frame the scores positively. For example: "Okay, let's break it down! Your acne breakouts are scoring a 65, which means we need to focus on clearing things up, but it's definitely manageable."
+        - Create a header "### Your Personalized AM/PM Skincare Routine". In this section, for each step (Cleanse, Treat, Moisturize, etc.), explain its purpose and recommend only a **GENERIC TYPE** of product (e.g., "a gentle foaming cleanser").
 
-        **Part 3: Aura's Specific Product Picks**
-        After the routine, create a final header "### Aura's Product Picks 💖". In this section, recommend **3-4 specific, real-world products (Brand and Full Product Name)** that are excellent examples of the generic types you mentioned in the routine above. Write this section as a single, conversational paragraph, explaining why you love each product. For example: "Okay, let's get you some amazing products! For that gentle cleanser I mentioned, I recommend the CeraVe Hydrating Facial Cleanser because it's super effective yet gentle. To target those breakouts, the Paula's Choice 2% BHA Liquid Exfoliant is a total game-changer for clearing pores..."
+        **Part 3: Aura's Product Picks.**
+        After the routine, create a final header "### Aura's Product Picks 💖". In this section, recommend **3-4 specific, real-world products (Brand and Full Product Name)** that are excellent examples of the generic types you mentioned in the routine above. Write this section as a single, conversational paragraph.
         `;
     } else if (mode === 'makeup-artist') {
+        // This prompt remains the same as the last stable version.
         const { eventType, dressType, dressColor, userStylePreference } = req.body;
-        // This is the detailed, conversational prompt for makeup from our last update
         textPromptString = `
-        You are "Aura," a world-class AI makeup artist... (Your persona instructions remain the same)
+        You are "Aura," a world-class AI makeup artist and the user's new best friend. Your persona is super fun, witty, and incredibly talented. Your goal is to design an exquisite, step-by-step makeup look. Get the user hyped for their event. Use fun emojis and AVOID robotic or overly formal language.
 
         User Information:
         - Event/Occasion: "${eventType}"
