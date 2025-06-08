@@ -1,12 +1,11 @@
-<!-- ✅ GlowReader: Fixed Full index.html with Chart + Loader + Result Preview -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>GlowReader AI Beauty Assistant</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -15,83 +14,56 @@
     <div class="container">
       <header>
         <h1>Meet Aura ✨</h1>
-        <p>Your AI beauty BFF for personalized skin & makeup advice.</p>
+        <p>Your AI beauty BFF for personalized skin & makeup</p>
       </header>
 
       <form id="analysis-form">
-        <div class="form-group">
-          <label for="mode-select">Select Analysis Mode:</label>
+        <div class="form-group wide">
+          <label for="mode-select">Analysis Mode:</label>
           <select id="mode-select" name="mode" required>
             <option value="skin-analyzer">Skin Analyzer</option>
             <option value="makeup-artist">Makeup Artist</option>
           </select>
         </div>
 
-        <div class="form-group">
-          <label for="photo-upload">Upload a clear, well-lit photo of your face:</label>
-          <input type="file" id="photo-upload" name="photo" accept="image/*" required>
+        <div class="form-group wide">
+          <label for="photo-upload">Upload Photo:</label>
+          <input type="file" id="photo-upload" name="photo" accept="image/*" required />
         </div>
 
-        <div id="skin-analyzer-fields" class="mode-fields">
-          <select name="skinType" class="form-group">
-            <option value="Normal">Skin Type: Normal</option>
-            <option value="Oily">Skin Type: Oily</option>
-            <option value="Dry">Skin Type: Dry</option>
-            <option value="Combination">Skin Type: Combination</option>
-            <option value="Sensitive">Skin Type: Sensitive</option>
-          </select>
-          <select name="skinProblem" class="form-group">
-            <option value="Acne">Main Concern: Acne</option>
-            <option value="Dark Spots">Main Concern: Dark Spots</option>
-            <option value="Wrinkles & Fine Lines">Main Concern: Wrinkles & Fine Lines</option>
-            <option value="Redness">Main Concern: Redness</option>
-            <option value="Dullness">Main Concern: Dullness</option>
-          </select>
-          <select name="ageGroup" class="form-group">
-            <option value="13-19">Age Group: 13-19</option>
-            <option value="20-29">Age Group: 20-29</option>
-            <option value="30-39">Age Group: 30-39</option>
-            <option value="40-49">Age Group: 40-49</option>
-            <option value="50+">Age Group: 50+</option>
-          </select>
-          <select name="lifestyleFactor" class="form-group">
-            <option value="Low Sun Exposure">Lifestyle: Low Sun Exposure</option>
-            <option value="High Sun Exposure">Lifestyle: High Sun Exposure</option>
-            <option value="High Stress">Lifestyle: High Stress</option>
-            <option value="Active">Lifestyle: Active</option>
-          </select>
+        <div id="skin-analyzer-fields" class="mode-fields wide">
+          <select name="skinType"><option>Normal</option><option>Oily</option><option>Dry</option><option>Combination</option><option>Sensitive</option></select>
+          <select name="skinProblem"><option>Acne</option><option>Dark Spots</option><option>Wrinkles & Fine Lines</option><option>Redness</option><option>Dullness</option></select>
+          <select name="ageGroup"><option>13-19</option><option>20-29</option><option>30-39</option><option>40-49</option><option>50+</option></select>
+          <select name="lifestyleFactor"><option>Low Sun Exposure</option><option>High Sun Exposure</option><option>High Stress</option><option>Active</option></select>
         </div>
 
-        <div id="makeup-artist-fields" class="mode-fields" style="display: none;">
-          <input type="text" name="eventType" placeholder="Event (e.g., Wedding, Date Night)" class="form-group">
-          <input type="text" name="dressType" placeholder="Outfit Type (e.g., Silk Dress, Casual)" class="form-group">
-          <input type="text" name="dressColor" placeholder="Outfit Color (e.g., Red, Navy Blue)" class="form-group">
-          <select name="userStylePreference" class="form-group">
-            <option value="Natural">Style: Natural</option>
-            <option value="Glamorous">Style: Glamorous</option>
-            <option value="Bold & Dramatic">Style: Bold & Dramatic</option>
-            <option value="Minimalist">Style: Minimalist</option>
-          </select>
+        <div id="makeup-artist-fields" class="mode-fields wide" style="display:none;">
+          <input name="eventType" placeholder="Event (e.g. Wedding)" />
+          <input name="dressType" placeholder="Dress Type (e.g. Silk Dress)" />
+          <input name="dressColor" placeholder="Dress Color (e.g. Navy Blue)" />
+          <select name="userStylePreference"><option>Natural</option><option>Glamorous</option><option>Bold & Dramatic</option><option>Minimalist</option></select>
         </div>
 
         <button type="submit" class="submit-btn">Ask Aura</button>
       </form>
 
-      <div id="loader" style="display: none; text-align: center; padding: 20px;">
-        <p>✨ Analyzing your glow... please wait 💖</p>
+      <div id="loader" style="display:none;text-align:center;padding:20px;">
+        <p>✨ Analyzing your glow… please wait 💖</p>
       </div>
 
-      <div id="result-container" class="result-section" style="display: none;">
-        <div id="chart-container" style="display: none;">
+      <div id="result-container" class="result-section" style="display:none;">
+        <div id="chart-container" style="display:none;height:250px;margin-bottom:20px;">
           <h3>Your Skin Concerns at a Glance</h3>
           <canvas id="skin-chart"></canvas>
         </div>
-        <div class="result-preview">
-          <img id="result-image" src="" alt="User photo" style="width: 150px; border-radius: 10px; display: none; margin: 0 auto 20px;" />
-          <p><strong>Skin Tone:</strong> <span id="skin-tone">–</span></p>
-          <p><strong>Lipstick Match:</strong> <span id="lipstick">–</span></p>
-          <p><strong>Pro Tip:</strong> <span id="pro-tip">–</span></p>
-        </div>
+
+        <img id="result-image" src="" alt="User photo" style="width:150px;border-radius:10px;display:none;margin:0 auto 20px;" />
+
+        <p><strong>Skin Tone:</strong> <span id="skin-tone">–</span></p>
+        <p><strong>Lipstick Match:</strong> <span id="lipstick">–</span></p>
+        <p><strong>Pro Tip:</strong> <span id="pro-tip">–</span></p>
+
         <div id="markdown-output"></div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-// --- GlowReader script.js (Enhanced) ---
+// --- GlowReader script.js ---
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('analysis-form');
   const modeSelect = document.getElementById('mode-select');
@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: labels,
         datasets: [{
-          label: 'Skin Concern %',
+          label: 'Concern Level',
           data: data,
-          backgroundColor: 'rgba(255, 99, 132, 0.7)',
+          backgroundColor: 'rgba(255,99,132,0.7)',
           borderRadius: 6,
           borderSkipped: false
         }]
@@ -48,18 +48,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
-
     chartContainer.style.display = 'block';
   }
 
-  // Toggle fields side by side
   modeSelect.addEventListener('change', () => {
     const selected = modeSelect.value;
     skinFields.style.display = selected === 'skin-analyzer' ? 'flex' : 'none';
     makeupFields.style.display = selected === 'makeup-artist' ? 'flex' : 'none';
   });
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     loader.style.display = 'block';
     resultContainer.style.display = 'none';
@@ -69,35 +67,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData(form);
 
     try {
-      const response = await fetch('/api/vision', {
-        method: 'POST',
-        body: formData
-      });
+      const res = await fetch('/api/vision', { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('Server Error');
 
-      if (!response.ok) throw new Error('Server Error');
+      const { markdown } = await res.json();
+      let displayMd = markdown;
 
-      const result = await response.json();
-      const markdown = result.markdown;
-      let markdownForDisplay = markdown;
-
-      // Try to extract JSON
       const jsonRegex = /```json\s*([\s\S]*?)\s*```/;
       const match = markdown.match(jsonRegex);
       if (match && match[1]) {
         try {
-          const jsonData = JSON.parse(match[1]);
-          if (jsonData.concerns) renderChart(jsonData.concerns);
-          markdownForDisplay = markdown.replace(jsonRegex, '').trim();
-
-          if (jsonData.skinTone) skinToneEl.textContent = jsonData.skinTone;
-          if (jsonData.lipstick) lipstickEl.textContent = jsonData.lipstick;
-          if (jsonData.tip) proTipEl.textContent = jsonData.tip;
-        } catch (err) {
-          console.warn('Invalid JSON block');
-        }
+          const data = JSON.parse(match[1]);
+          data.concerns && renderChart(data.concerns);
+          displayMd = markdown.replace(jsonRegex, '').trim();
+          data.skinTone && (skinToneEl.textContent = data.skinTone);
+          data.lipstick && (lipstickEl.textContent = data.lipstick);
+          data.tip && (proTipEl.textContent = data.tip);
+        } catch (_) { console.warn('Invalid JSON'); }
       }
 
-      markdownOutput.innerHTML = marked.parse(markdownForDisplay);
+      markdownOutput.innerHTML = marked.parse(displayMd);
       resultContainer.style.display = 'block';
 
       if (photoUpload.files[0]) {
@@ -110,7 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
     } catch (err) {
-      markdownOutput.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
+      markdownOutput.innerHTML = `<p style="color:red;">❌ ${err.message}</p>`;
+      resultContainer.style.display = 'block';
     } finally {
       loader.style.display = 'none';
     }
