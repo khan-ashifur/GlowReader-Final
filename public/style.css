@@ -43,6 +43,7 @@ body {
     max-width: 650px;
     flex: 1;
     min-width: 400px;
+    position: relative; /* Needed for doodles */
 }
 
 header {
@@ -197,7 +198,6 @@ select:focus {
     z-index: 2;
 }
 
-/* --- NEW PUSHPIN STYLE --- */
 #history-list li::before {
     content: '';
     position: absolute;
@@ -206,12 +206,11 @@ select:focus {
     transform: translateX(-50%);
     width: 12px;
     height: 12px;
-    background-color: #e63946; /* Red for the pin head */
+    background-color: #e63946;
     border-radius: 50%;
     box-shadow: 0 0 3px rgba(0,0,0,0.3);
     border: 1px solid #fff;
 }
-
 
 #history-list li.new-item::after {
     content: 'New!';
@@ -237,15 +236,20 @@ select:focus {
     font-weight: 600;
     color: var(--accent-color);
     display: block;
-    text-align: center; /* Center text under the pin */
-    padding-top: 5px; /* Add space below the pin */
+    text-align: center;
+    padding-top: 5px;
 }
 
 #history-list .history-item-date {
     font-size: 0.85em;
     color: #6c757d;
     margin-top: 4px;
-    text-align: center; /* Center date */
+    text-align: center;
+}
+
+.result-section {
+    /* ... existing styles ... */
+    position: relative; /* Needed for doodles on this too */
 }
 
 .result-section h1, .result-section h3, .result-section h4 {
@@ -255,7 +259,9 @@ select:focus {
     padding-bottom: 8px;
     margin-top: 1em;
 }
+
 .result-section p { line-height: 1.6; }
+
 .result-section pre {
     background-color: #343a40;
     color: #f8f9fa;
@@ -300,7 +306,7 @@ select:focus {
     transform: scale(1);
 }
 
-.modal-content h2 {
+.modal-content h2, #chart-container h3 {
     font-family: var(--heading-font);
     color: var(--primary-text);
     margin: 0 0 15px 0;
@@ -336,9 +342,32 @@ select:focus {
     border-bottom: 1px solid var(--border-color);
 }
 
-#chart-container h3 {
-    text-align: center;
-    font-family: var(--heading-font);
-    color: var(--primary-text);
-    margin-bottom: 15px;
+/* --- NEW DOODLE STYLES --- */
+.container::before, .container::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    z-index: -1; /* Place doodles behind the container */
+    opacity: 0.7;
+}
+
+/* Doodle in the top-right corner */
+.container::before {
+    top: -20px;
+    right: -15px;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 0 L61.2 35.5 L98.7 38.8 L70.5 64.5 L78.4 100 L50 79.5 L21.6 100 L29.5 64.5 L1.3 38.8 L38.8 35.5 Z' fill='rgba(131, 111, 255, 0.5)'/%3E%3Cpath d='M20 20 L25 10 L30 20 L40 25 L30 30 L25 40 L20 30 L10 25 Z' fill='rgba(255, 247, 212, 1)'/%3E%3C/svg%3E");
+    transform: rotate(15deg);
+}
+
+/* Doodle in the bottom-left corner */
+.container::after {
+    bottom: -20px;
+    left: -20px;
+    width: 60px; /* Different size for variation */
+    height: 60px;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 50 C10 22.4 32.4 0 60 0 C87.6 0 100 22.4 100 50 C100 77.6 77.6 100 50 100' stroke='%23836FFF' stroke-width='5' fill='none'/%3E%3Cpath d='M0 70 C0 53.4 13.4 40 30 40 C46.6 40 60 53.4 60 70' stroke='rgba(255, 247, 212, 1)' stroke-width='8' fill='none' /%3E%3C/svg%3E");
+    transform: rotate(-25deg);
 }
