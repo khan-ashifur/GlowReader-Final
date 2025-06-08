@@ -1,4 +1,4 @@
-// --- FULL script.js CODE with Typing Effect ---
+// --- FULL script.js CODE with Aura Loader Typing Effect ---
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM ELEMENT REFERENCES ---
@@ -12,9 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyPanel = document.getElementById('history-panel');
     const historyList = document.getElementById('history-list');
     const clearHistoryBtn = document.getElementById('clear-history-btn');
-    let skinChartInstance = null; // To hold the chart instance
+    let skinChartInstance = null;
 
-    // --- ONBOARDING LOGIC ---
+    // --- ONBOARDING MODAL ---
     const handleOnboarding = () => {
         const hasVisited = localStorage.getItem('glowReaderVisited');
         if (!hasVisited) {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- CHART FUNCTION ---
+    // --- CHART ---
     const renderSkinAnalysisChart = (concerns) => {
         const chartContainer = document.getElementById('chart-container');
         const chartCanvas = document.getElementById('skin-chart');
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- HISTORY MANAGEMENT FUNCTIONS ---
+    // --- HISTORY ---
     const getHistory = () => JSON.parse(localStorage.getItem('glowReaderHistory')) || [];
 
     const saveToHistory = (type, content) => {
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (skinChartInstance) skinChartInstance.destroy();
     };
 
-    // --- TYPING RESPONSE ---
+    // --- API RESPONSE HANDLER WITH TYPING EFFECT ---
     const handleApiResponse = (markdown) => {
         resultContainer.innerHTML = '';
 
@@ -151,15 +151,21 @@ document.addEventListener('DOMContentLoaded', () => {
         showTypingEffect(displayDiv, parsedHTML);
     };
 
-    // --- EVENT LISTENERS ---
+    // --- MODE TOGGLE ---
     modeSelect.addEventListener('change', () => {
         skinFields.style.display = modeSelect.value === 'skin-analyzer' ? 'block' : 'none';
         makeupFields.style.display = modeSelect.value === 'makeup-artist' ? 'block' : 'none';
     });
 
-    historyList.addEventListener('click', (e) => e.target.closest('li') && displayFromHistory(e.target.closest('li').dataset.id));
+    // --- HISTORY EVENTS ---
+    historyList.addEventListener('click', (e) => {
+        const li = e.target.closest('li');
+        if (li) displayFromHistory(li.dataset.id);
+    });
+
     clearHistoryBtn.addEventListener('click', clearHistory);
 
+    // --- FORM SUBMIT WITH LOADER CONTROL ---
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!photoUpload.files[0]) {
@@ -168,14 +174,30 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Reset
         form.style.display = 'none';
         resultContainer.style.display = 'none';
-        loader.classList.add('pulsing');
-        loader.style.display = 'block';
+        resultContainer.innerHTML = '';
+
+        // Restart typing animation
+        const typingText = loader.querySelector('.typing-text');
+        if (typingText) {
+            typingText.style.animation = 'none';
+            void typingText.offsetWidth;
+            typingText.style.animation = null;
+        }
+
+        // Show loader
+        loader.style.display = 'flex';
 
         const formData = new FormData(form);
+
         try {
-            const response = await fetch('/api/vision', { method: 'POST', body: formData });
+            const response = await fetch('/api/vision', {
+                method: 'POST',
+                body: formData
+            });
+
             if (!response.ok) throw new Error((await response.json()).error || 'Server error.');
 
             const result = await response.json();
@@ -186,16 +208,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 : `Makeup Look for ${formData.get('eventType') || 'Event'}`;
             saveToHistory(analysisType, result.markdown);
         } catch (error) {
-            resultContainer.innerHTML = `<p style="color: #e63946; font-weight: bold;">Oops! Something went wrong.</p><p style="color: #495057;">Error: ${error.message}</p>`;
+            resultContainer.innerHTML = `
+                <p style="color: #e63946; font-weight: bold;">Oops! Something went wrong.</p>
+                <p style="color: #495057;">Error: ${error.message}</p>`;
             resultContainer.style.display = 'block';
         } finally {
-            loader.classList.remove('pulsing');
             loader.style.display = 'none';
             form.style.display = 'block';
         }
     });
 
-    // --- INITIALIZATION ---
+    // --- INIT ---
     renderHistory();
     handleOnboarding();
 });

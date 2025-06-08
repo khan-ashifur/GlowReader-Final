@@ -8,6 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <!-- AURA Background Animation -->
+  <div class="aura"></div>
+
   <!-- Welcome Modal -->
   <div id="welcome-modal" class="modal-overlay">
     <div class="modal-content">
@@ -90,8 +93,11 @@
         <button type="submit" class="submit-btn">Ask Aura</button>
       </form>
 
-      <!-- Loader Animation -->
-      <div id="loader" style="display:none;"></div>
+      <!-- Loader with Typing Effect -->
+      <div id="loader" style="display: none;" class="loader-container">
+        <div class="typing-text">Analyzing your beauty data</div>
+        <div class="loader-dots"></div>
+      </div>
 
       <!-- Result + Chart -->
       <div id="result-container" class="result-section">
