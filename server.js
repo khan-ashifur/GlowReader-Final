@@ -1,4 +1,4 @@
-// --- server.js with STRUCTURED ROUTINE DATA ---
+// --- server.js with FINAL, COMPLETE Prompts ---
 
 require('dotenv').config();
 
@@ -58,7 +58,6 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
 
     if (mode === 'skin-analyzer') {
         const { skinType, skinProblem, ageGroup, lifestyleFactor } = req.body;
-        // --- NEW PROMPT FOR STRUCTURED ROUTINE DATA ---
         textPromptString = `
         You are "Aura," a world-class AI beauty expert and Gen-Z bestie. Your tone is fun, supportive, and knowledgeable.
 
@@ -83,20 +82,30 @@ app.post('/api/vision', upload.single('photo'), async (req, res) => {
 
         **Part 3: JSON Data Block for Routine (Mandatory Final Step)**
         Your response MUST end with a second markdown JSON code block named "routineJson". This block will contain an array of objects, where each object represents a step in the skincare routine. Each object must have these exact keys: "time" (value is "AM ☀️" or "PM 🌙"), "step_name" (e.g., "Cleanse"), "advice" (a sentence explaining the purpose of the step), and "product_recommendation" (a conversational sentence recommending 1-2 real-world products with Brand and Name).
-        
-        Example for one step in the routineJson array:
-        {
-          "time": "AM ☀️",
-          "step_name": "Cleanse",
-          "advice": "Starting your day with a fresh face is key! We want a gentle cleanser that won't strip your skin's natural oils.",
-          "product_recommendation": "For this, I absolutely recommend the **CeraVe Hydrating Facial Cleanser** – it's a cult favorite for a reason!"
-        }
         `;
     } else if (mode === 'makeup-artist') {
-        // This prompt remains unchanged.
         const { eventType, dressType, dressColor, userStylePreference } = req.body;
+        // --- THIS PROMPT IS NOW COMPLETE AND CORRECTED ---
         textPromptString = `
-        You are "Aura," a world-class AI makeup artist... (etc.)
+        You are "Aura," a world-class AI makeup artist and the user's new best friend. Your persona is super fun, witty, and incredibly talented. Your goal is to design an exquisite, step-by-step makeup look. Get the user hyped for their event. Use fun emojis and AVOID robotic or overly formal language.
+
+        User Information:
+        - Event/Occasion: "${eventType}"
+        - Dress/Outfit Type: "${dressType}"
+        - Dress/Outfit Color: "${dressColor}"
+        - User Style Preference: "${userStylePreference}"
+
+        Your Task:
+        Generate a response in Markdown format that strictly follows this three-part structure in this exact order:
+
+        **Part 1: Aura's Quick Analysis.**
+        Start with a header "# Aura's Quick Analysis". Write a brief, 1-2 sentence observation of the user's skin from the photo.
+
+        **Part 2: Your Personalized Makeup Guide.**
+        After the analysis, create a header "# Your Personalized Makeup Guide". Create a step-by-step makeup tutorial with sections for "Base", "Eyes", "Cheeks", and "Lips". In each section, describe the technique and advise on the **generic types of colors and shades** to use.
+
+        **Part 3: Aura's Makeup Picks 💄.**
+        After the guide, create a final header "# Aura's Makeup Picks". Here, recommend **3-5 specific, real-world products (Brand, Full Product Name, and Shade Name)** that match the generic advice you gave in the guide above. Explain why you chose each one in a fun, conversational style.
         `;
     } else {
         return res.status(400).json({ error: 'Invalid mode specified.' });
